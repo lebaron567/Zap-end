@@ -32,7 +32,14 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Registration(w http.ResponseWriter, r *http.Request) {
+func Registration(w http.ResponseWriter, r *http.Request)  {
+	prenom := r.FormValue("prenom")
+	nom := r.FormValue("nom")
+	email := r.FormValue("email")
+	pseudo := r.FormValue("pseudo")
+	password := r.FormValue("password")
+	age := r.FormValue("age")
+	fmt.Println(prenom,nom,email,pseudo,password,age)
 	err := registration.Execute(w, ff)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -50,6 +57,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
 func Profil(w http.ResponseWriter, r *http.Request) {
 	err := profil.Execute(w, ff)
 	if err != nil {
