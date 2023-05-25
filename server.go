@@ -1,4 +1,4 @@
-package main
+package back
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ var message = template.Must(template.ParseFiles("template/message.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
 var ff = 0
 
-func main() {
+func Serveur() {
 	http.HandleFunc("/home", Home)
 	http.HandleFunc("/registration", Registration)
 	http.HandleFunc("/explorer", Explorer)

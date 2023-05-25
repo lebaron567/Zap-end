@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	// back.InitBDD()
+	
 	value := back.Get("*", "users")
 	fmt.Println(value)
 
@@ -14,4 +14,5 @@ func main() {
 	value = back.Get("*", "users")
 	// fmt.Println(back.CheckPasswordHash("secret", value[5]))
 	fmt.Println(value)
+	back.Serveur()
 }
