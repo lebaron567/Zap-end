@@ -35,6 +35,31 @@ func InitBDD() {
 		PRIMARY KEY("id" AUTOINCREMENT)
 		
 	);
+
+
+	CREATE TABLE IF NOT EXISTS "post" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id),
+		"title_post" VARCHAR(50) NOT NULL,
+		"content_post" 	LONGTEXT NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT)
+		
+	);
+
+	CREATE TABLE IF NOT EXISTS "comment" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id),
+		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id),
+		"content_comment" 	LONGTEXT NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT)
+	);
+
+	CREATE TABLE IF NOT EXISTS "like" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id),
+		"effet"   BOOLEAN, 
+		PRIMARY KEY("id" AUTOINCREMENT)
+	);
 	`
 
 	_, bdderr := database.Exec(tmp)
