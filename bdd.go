@@ -10,15 +10,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type users struct {
-	id        int
-	firstname string
-	lastname  string
-	email     string
-	password  string
-	pseudo    string
-}
-
 func OpenBDD() *sql.DB {
 	database, bdderr := sql.Open("sqlite3", "./BDD.db")
 	if bdderr != nil {
@@ -30,18 +21,17 @@ func OpenBDD() *sql.DB {
 }
 
 func InitBDD() {
-	// var test users
 	database := OpenBDD()
 	defer database.Close()
 	tmp := `
 	CREATE TABLE IF NOT EXISTS "users" (
 		"id"	INTEGER NOT NULL UNIQUE,
 		"age"	INTEGER NOT NULL,
-		"firstname"	CHAR(20) NOT NULL,
-		"lastname"	CHAR(30) NOT NULL,
-		"email"		CHAR(50) NOT NULL UNIQUE,
-		"password"	CHAR(50) NOT NULL,
-		"pseudo"	CHAR(20) NOT NULL UNIQUE,
+		"firstname_users"	VARCHAR(20) NOT NULL,
+		"lastname_users"	VARCHAR(30) NOT NULL,
+		"email_users"		VARCHAR(50) NOT NULL UNIQUE,
+		"password_hashed_users"	VARCHAR(45) NOT NULL,
+		"pseudo_users"	VARCHAR(20) NOT NULL UNIQUE,
 		PRIMARY KEY("id" AUTOINCREMENT)
 		
 	);
@@ -78,7 +68,6 @@ func GetAllFeildInTable(table string) [][]string {
 		}
 		feildOfTable = append(feildOfTable, strconv.Itoa(id), strconv.Itoa(age), firstname, lastname, email, password, pseudo)
 		result = append(result, feildOfTable)
-		rows.NextResultSet()
 
 	}
 	return result
@@ -174,7 +163,7 @@ func AddUser(age int, firstname string, lastname string, email string, password 
 	if age < 13 {
 		log.Fatal("grandis et tu pourras parler")
 	}
-	statement, BDDerr := database.Prepare(`INSERT INTO users(age, firstname, lastname, email, password, pseudo) VALUES(?,?,?,?,?,?);`)
+	statement, BDDerr := database.Prepare(`INSERT INTO user(age, firstname_user, lastname_user, email_user, password_user, pseudo_user) VALUES(?,?,?,?,?,?);`)
 	if BDDerr != nil {
 		log.Fatal("ERROR 500 : error Prepare new user \n ", BDDerr)
 	}
