@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
 )
 
 var home = template.Must(template.ParseFiles("template/home.html"))
@@ -12,6 +12,12 @@ var explorer = template.Must(template.ParseFiles("template/Explorer.html"))
 var message = template.Must(template.ParseFiles("template/message.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
 var ff = 0
+
+type Data struct {
+	User,
+	Message string
+	NBLike int
+}
 
 func main() {
 	http.HandleFunc("/home", Home)
@@ -26,7 +32,15 @@ func main() {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	err := home.Execute(w, ff)
+	data := Data{
+		User: "chritians",
+		Message: "message",
+		NBLike:50,
+	}
+
+	fmt.Println(data.Message)
+
+	err := home.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
