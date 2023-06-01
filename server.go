@@ -33,7 +33,7 @@ func main() {
 
 func Home(w http.ResponseWriter, r *http.Request) {
 	data := Data{
-		User: "chritians",
+		User: "christian",
 		Message: "message",
 		NBLike:50,
 	}

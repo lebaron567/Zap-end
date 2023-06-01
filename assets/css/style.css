@@ -1,6 +1,6 @@
 .menu {
     background-color: #AAEDED;
-    position:fixed;
+    position: absolute;
     top:0;
     left:0;
     bottom:0; 
@@ -24,24 +24,42 @@
     flex-direction: column;
     align-items: center;
 }
+.search-form {
+    right: 300px;
+    position: absolute;
+    margin-top: 0%;
+}
+.search-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 250px;
+}
 
+.search-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    margin-left: 10px;
+    
+}
 
 p{
     margin: 0;
 }
 
 .post {
-    left: 350px;
-    position: absolute;
-    background-color: #AAEDED;
+    position: relative;
+    background-color: #eff5f5;
     border: solid;
     text-align: center;
     box-sizing: content-box;
     width: 400px;
-    /* padding: 80px 1em 0 1em; */
+    left: 400px;
+    margin-top: 50px;
     display: flex;
     align-items: flex-start;
     flex-direction: column;
 }
-
-
