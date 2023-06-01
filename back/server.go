@@ -17,6 +17,10 @@ var message = template.Must(template.ParseFiles("template/message.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
 var ff = 0
 
+type Data struct {
+	Cookis string
+}
+
 func main() {
 	http.HandleFunc("/home", Home)
 	http.HandleFunc("/registration", Registration)
@@ -32,7 +36,21 @@ func main() {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	err := home.Execute(w, ff)
+	data := Data{}
+	// cookie, err2 := r.Cookie("prenom")
+	// if err2 != nil {
+	// 	switch {
+	// 	case errors.Is(err2, http.ErrNoCookie):
+	// 		http.Redirect(w, r, "/registration", http.StatusFound)
+	// 	default:
+	// 		log.Println(err2)
+	// 		http.Error(w, "server error", http.StatusInternalServerError)
+	// 	}
+	// 	return
+	// } else {
+	// 	data = Data{Cookis: cookie.Value}
+	// }
+	err := home.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -78,7 +96,18 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(prenom, nom, email, pseudo, password, age)
 		bdderr := back.AddUser(age, prenom, nom, email, password, pseudo)
 		if bdderr != nil {
-			// affichier l'erreur a l'utilsateur
+		} else {
+			cookie := http.Cookie{
+				Name:     "pseudo",
+				Value:    pseudo,
+				Path:     "/",
+				MaxAge:   3600,
+				HttpOnly: true,
+				Secure:   true,
+				SameSite: http.SameSiteLaxMode,
+			}
+			http.SetCookie(w, &cookie)
+			http.Redirect(w, r, "/home", http.StatusFound)
 		}
 	}
 	// affichier que le profile a bien été crée et rediger vers la page connexion
@@ -89,20 +118,62 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
-	err := explorer.Execute(w, ff)
+	data := Data{}
+	// cookie, err2 := r.Cookie("prenom")
+	// if err2 != nil {
+	// 	switch {
+	// 	case errors.Is(err2, http.ErrNoCookie):
+	// 		http.Redirect(w, r, "/registration", http.StatusFound)
+	// 	default:
+	// 		log.Println(err2)
+	// 		http.Error(w, "server error", http.StatusInternalServerError)
+	// 	}
+	// 	return
+	// } else {
+	// 	data = Data{Cookis: cookie.Value}
+	// }
+	err := explorer.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 func Message(w http.ResponseWriter, r *http.Request) {
-	err := message.Execute(w, ff)
+	data := Data{}
+	// cookie, err2 := r.Cookie("prenom")
+	// if err2 != nil {
+	// 	switch {
+	// 	case errors.Is(err2, http.ErrNoCookie):
+	// 		http.Redirect(w, r, "/registration", http.StatusFound)
+	// 	default:
+	// 		log.Println(err2)
+	// 		http.Error(w, "server error", http.StatusInternalServerError)
+	// 	}
+	// 	return
+	// } else {
+	// 	data = Data{Cookis: cookie.Value}
+	// }
+	err := message.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func Profil(w http.ResponseWriter, r *http.Request) {
-	err := profil.Execute(w, ff)
+	data := Data{}
+	// cookie, err2 := r.Cookie("prenom")
+	// if err2 != nil {
+	// 	switch {
+	// 	case errors.Is(err2, http.ErrNoCookie):
+	// 		http.Redirect(w, r, "/registration", http.StatusFound)
+	// 	default:
+	// 		log.Println(err2)
+	// 		http.Error(w, "server error", http.StatusInternalServerError)
+	// 	}
+	// 	return
+	// } else {
+	// 	data = Data{Cookis: cookie.Value}
+	// }
+	err := profil.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
