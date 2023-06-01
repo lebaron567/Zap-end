@@ -178,22 +178,38 @@ func GetAlLikes() {
 	}
 }
 
-func AddUser(age int, firstname string, lastname string, email string, password string, pseudo string) {
+func AddUser(age int, firstname string, lastname string, email string, password string, pseudo string) error {
 	database := OpenBDD()
 	password = HashPassword(password)
 	fmt.Println(password)
 	if age < 13 {
-		log.Fatal("grandis et tu pourras parler")
+		return fmt.Errorf("age<13")
 	}
 	statement, BDDerr := database.Prepare(`INSERT INTO user(age, firstname_user, lastname_user, email_user, password_hashed_user, pseudo_user) VALUES(?,?,?,?,?,?);`)
 	if BDDerr != nil {
-		log.Fatal("ERROR 500 : error Prepare new user \n ", BDDerr)
+		return BDDerr
 	}
 	_, BDDerr = statement.Exec(strconv.Itoa(age), firstname, lastname, email, password, pseudo)
 	if BDDerr != nil {
-		log.Fatal("ERROR 500 : error exec new user \n ", BDDerr)
+		return BDDerr
 	}
 	defer database.Close()
+	return nil
+}
+func AddPost(id_user int, title_post string, content_post string) error {
+	database := OpenBDD()
+	statement, BDDerr := database.Prepare(`INSERT INTO post(id_user, title_post, content_post) VALUES(?,?,?)`)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	_, BDDerr = statement.Exec(id_user, title_post, content_post)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	defer database.Close()
+	return nil
 }
 
 func HashPassword(password string) string {
