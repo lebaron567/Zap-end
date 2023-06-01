@@ -45,7 +45,7 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 		database := back.OpenBDD()
-		rows, err := database.Query("SELECT password_hashed_user FROM user WHERE email_user = " + email)
+		rows, err := database.Query("SELECT password_hashed_user FROM user WHERE email_user = " + email + ";")
 		if err != nil {
 			fmt.Print(err)
 		}
