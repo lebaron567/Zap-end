@@ -51,9 +51,9 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		}
 		rows.Scan(&password_hashed_user)
 		if back.CheckPasswordHash(password, password_hashed_user) {
-			// acces authoriser
+			http.Redirect(w, r, "/profile", http.StatusFound)
 		} else {
-			// acces refuser
+			http.Redirect(w, r, "/home", http.StatusFound)
 		}
 
 	}
