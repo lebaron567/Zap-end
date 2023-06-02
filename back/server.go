@@ -39,7 +39,7 @@ func main() {
 
 func Home(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	cookie, err2 := r.Cookie("prenom")
+	cookie, err2 := r.Cookie("pseudo")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -65,13 +65,11 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
 		database := back.OpenBDD()
-		rows, err := database.Query(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` +pseudo+ `";`)
+		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` +pseudo+ `";`).Scan(&password_hashed_user)
 		if err != nil {
 			fmt.Print(err)
 		}
-		rows.Scan(&password_hashed_user)
 		if back.CheckPasswordHash(password, password_hashed_user) {
-			http.Redirect(w, r, "/profile", http.StatusFound)
 			cookie := http.Cookie{
 				Name:     "pseudo",
 				Value:    pseudo,
@@ -82,6 +80,8 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 				SameSite: http.SameSiteLaxMode,
 			}
 			http.SetCookie(w, &cookie)
+			fmt.Println(cookie)
+			http.Redirect(w, r, "/home", http.StatusFound)
 		} else {
 			http.Redirect(w, r, "/home", http.StatusFound)
 		}
@@ -131,7 +131,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	cookie, err2 := r.Cookie("prenom")
+	cookie, err2 := r.Cookie("pseudo")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -151,7 +151,7 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 }
 func Message(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	cookie, err2 := r.Cookie("prenom")
+	cookie, err2 := r.Cookie("pseudo")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -172,7 +172,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 
 func Profil(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	cookie, err2 := r.Cookie("prenom")
+	cookie, err2 := r.Cookie("pseudo")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
