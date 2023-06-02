@@ -163,19 +163,19 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 }
 func Message(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("prenom")
-	if err2 != nil {
-		switch {
-		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/connexion", http.StatusFound)
-		default:
-			log.Println(err2)
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}
-		return
-	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
-	}
+	// cookie, err2 := r.Cookie("prenom")
+	// if err2 != nil {
+	// 	switch {
+	// 	case errors.Is(err2, http.ErrNoCookie):
+	// 		http.Redirect(w, r, "/connexion", http.StatusFound)
+	// 	default:
+	// 		log.Println(err2)
+	// 		http.Error(w, "server error", http.StatusInternalServerError)
+	// 	}
+	// 	return
+	// } else {
+	// 	dataUser = DataUser{Cookis: cookie.Value}
+	// }
 	err := message.Execute(w, dataUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
