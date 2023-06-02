@@ -1,6 +1,9 @@
 
 body{
     background-color: rgb(53, 53, 53);
+    display: flex;
+    justify-content: space-around;
+
 }
 .menu {
     background-color: #AAEDED;
@@ -68,3 +71,27 @@ p{
     flex-direction: column;
 }
 
+.create-post{
+    display: flex;
+    justify-content: center;
+    background-color: rgb(213, 213, 213);
+    border-radius: 35px ;
+    width : 600px ;
+    height: 800px;
+}
+
+#title{
+    margin-top: 20px;
+    border-radius: 20px;
+
+    display: flex;
+    width: 550px;
+    
+}
+#content{
+    border-radius: 20px;
+    display: flex;
+    height: 700px;
+    width: 550px;
+    
+}
