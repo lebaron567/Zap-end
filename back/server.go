@@ -18,8 +18,14 @@ var message = template.Must(template.ParseFiles("template/message.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
 var ff = 0
 
-type Data struct {
+type DataUser struct {
 	Cookis string
+}
+
+type Data struct {
+	User,
+	Message string
+	NBLike int
 }
 
 func main() {
@@ -38,7 +44,12 @@ func main() {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	data := Data{}
+	dataUser := DataUser{}
+	data := Data{
+		User:    "christian",
+		Message: "message",
+		NBLike:  50,
+	}
 	cookie, err2 := r.Cookie("prenom")
 	if err2 != nil {
 		switch {
@@ -50,7 +61,8 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else {
-		data = Data{Cookis: cookie.Value}
+		dataUser = DataUser{Cookis: cookie.Value}
+		fmt.Println(dataUser)
 	}
 	err := home.Execute(w, data)
 	if err != nil {
@@ -65,7 +77,7 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
 		database := back.OpenBDD()
-		rows, err := database.Query(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` +pseudo+ `";`)
+		rows, err := database.Query(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`)
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -130,7 +142,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
-	data := Data{}
+	dataUser := DataUser{}
 	cookie, err2 := r.Cookie("prenom")
 	if err2 != nil {
 		switch {
@@ -142,15 +154,15 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else {
-		data = Data{Cookis: cookie.Value}
+		dataUser = DataUser{Cookis: cookie.Value}
 	}
-	err := explorer.Execute(w, data)
+	err := explorer.Execute(w, dataUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 func Message(w http.ResponseWriter, r *http.Request) {
-	data := Data{}
+	dataUser := DataUser{}
 	cookie, err2 := r.Cookie("prenom")
 	if err2 != nil {
 		switch {
@@ -162,16 +174,16 @@ func Message(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else {
-		data = Data{Cookis: cookie.Value}
+		dataUser = DataUser{Cookis: cookie.Value}
 	}
-	err := message.Execute(w, data)
+	err := message.Execute(w, dataUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func Profil(w http.ResponseWriter, r *http.Request) {
-	data := Data{}
+	dataUser := DataUser{}
 	cookie, err2 := r.Cookie("prenom")
 	if err2 != nil {
 		switch {
@@ -183,9 +195,9 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else {
-		data = Data{Cookis: cookie.Value}
+		dataUser = DataUser{Cookis: cookie.Value}
 	}
-	err := profil.Execute(w, data)
+	err := profil.Execute(w, dataUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

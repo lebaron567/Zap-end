@@ -10,7 +10,7 @@
 <body>
     <div class="menu">
         <div class=boutons>
-            <form action="/home">
+            <form action="http://localhost:8080/home">
                 <button type="submit" class="bounton-nav"> Accuille </button>
             </form>
              <form action="/explorer">
@@ -26,6 +26,19 @@
                 <button type="submit" class="bounton-nav"> notifi </button>
             </form>
         </div>
+    </div>
+    <div class="search-form">
+        <input type="text" placeholder="Recherche" class="search-input">
+        <button type="submit" class="search-button">Rechercher</button>
+    </div>
+    <div class="post">
+        <p>{{.User}}</p>
+        <hr>
+        <div class="message"> 
+         <h1>{{.Message}}</h1>
+        </div>
+        <hr>
+        <p>like: {{.NBLike}}</p>
     </div>
 </body>
 </html>
