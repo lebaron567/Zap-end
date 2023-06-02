@@ -2,6 +2,7 @@ package main
 
 import (
 	"back"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,6 +23,7 @@ type Data struct {
 }
 
 func main() {
+	back.InitBDD()
 	http.HandleFunc("/home", Home)
 	http.HandleFunc("/registration", Registration)
 	http.HandleFunc("/explorer", Explorer)
@@ -37,19 +39,19 @@ func main() {
 
 func Home(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	// cookie, err2 := r.Cookie("prenom")
-	// if err2 != nil {
-	// 	switch {
-	// 	case errors.Is(err2, http.ErrNoCookie):
-	// 		http.Redirect(w, r, "/registration", http.StatusFound)
-	// 	default:
-	// 		log.Println(err2)
-	// 		http.Error(w, "server error", http.StatusInternalServerError)
-	// 	}
-	// 	return
-	// } else {
-	// 	data = Data{Cookis: cookie.Value}
-	// }
+	cookie, err2 := r.Cookie("prenom")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
+			http.Redirect(w, r, "/connexion", http.StatusFound)
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		data = Data{Cookis: cookie.Value}
+	}
 	err := home.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -60,16 +62,26 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		var password_hashed_user string
-		email := r.FormValue("email")
+		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
 		database := back.OpenBDD()
-		rows, err := database.Query("SELECT password_hashed_user FROM user WHERE email_user = " + email + ";")
+		rows, err := database.Query(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` +pseudo+ `";`)
 		if err != nil {
 			fmt.Print(err)
 		}
 		rows.Scan(&password_hashed_user)
 		if back.CheckPasswordHash(password, password_hashed_user) {
 			http.Redirect(w, r, "/profile", http.StatusFound)
+			cookie := http.Cookie{
+				Name:     "pseudo",
+				Value:    pseudo,
+				Path:     "/",
+				MaxAge:   3600,
+				HttpOnly: true,
+				Secure:   true,
+				SameSite: http.SameSiteLaxMode,
+			}
+			http.SetCookie(w, &cookie)
 		} else {
 			http.Redirect(w, r, "/home", http.StatusFound)
 		}
@@ -119,19 +131,19 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	// cookie, err2 := r.Cookie("prenom")
-	// if err2 != nil {
-	// 	switch {
-	// 	case errors.Is(err2, http.ErrNoCookie):
-	// 		http.Redirect(w, r, "/registration", http.StatusFound)
-	// 	default:
-	// 		log.Println(err2)
-	// 		http.Error(w, "server error", http.StatusInternalServerError)
-	// 	}
-	// 	return
-	// } else {
-	// 	data = Data{Cookis: cookie.Value}
-	// }
+	cookie, err2 := r.Cookie("prenom")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
+			http.Redirect(w, r, "/connexion", http.StatusFound)
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		data = Data{Cookis: cookie.Value}
+	}
 	err := explorer.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -139,19 +151,19 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 }
 func Message(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	// cookie, err2 := r.Cookie("prenom")
-	// if err2 != nil {
-	// 	switch {
-	// 	case errors.Is(err2, http.ErrNoCookie):
-	// 		http.Redirect(w, r, "/registration", http.StatusFound)
-	// 	default:
-	// 		log.Println(err2)
-	// 		http.Error(w, "server error", http.StatusInternalServerError)
-	// 	}
-	// 	return
-	// } else {
-	// 	data = Data{Cookis: cookie.Value}
-	// }
+	cookie, err2 := r.Cookie("prenom")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
+			http.Redirect(w, r, "/connexion", http.StatusFound)
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		data = Data{Cookis: cookie.Value}
+	}
 	err := message.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -160,19 +172,19 @@ func Message(w http.ResponseWriter, r *http.Request) {
 
 func Profil(w http.ResponseWriter, r *http.Request) {
 	data := Data{}
-	// cookie, err2 := r.Cookie("prenom")
-	// if err2 != nil {
-	// 	switch {
-	// 	case errors.Is(err2, http.ErrNoCookie):
-	// 		http.Redirect(w, r, "/registration", http.StatusFound)
-	// 	default:
-	// 		log.Println(err2)
-	// 		http.Error(w, "server error", http.StatusInternalServerError)
-	// 	}
-	// 	return
-	// } else {
-	// 	data = Data{Cookis: cookie.Value}
-	// }
+	cookie, err2 := r.Cookie("prenom")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
+			http.Redirect(w, r, "/connexion", http.StatusFound)
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		data = Data{Cookis: cookie.Value}
+	}
 	err := profil.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
