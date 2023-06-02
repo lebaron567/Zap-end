@@ -65,27 +65,27 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
 		database := back.OpenBDD()
-		rows, err := database.Query(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` +pseudo+ `";`)
+		rows, err := database.Query(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`)
 		if err != nil {
 			fmt.Print(err)
 		}
 		rows.Scan(&password_hashed_user)
 		if back.CheckPasswordHash(password, password_hashed_user) {
 			http.Redirect(w, r, "/profile", http.StatusFound)
-			cookie := http.Cookie{
-				Name:     "pseudo",
-				Value:    pseudo,
-				Path:     "/",
-				MaxAge:   3600,
-				HttpOnly: true,
-				Secure:   true,
-				SameSite: http.SameSiteLaxMode,
-			}
-			http.SetCookie(w, &cookie)
 		} else {
 			http.Redirect(w, r, "/home", http.StatusFound)
-		}
 
+		}
+		cookie := http.Cookie{
+			Name:     "pseudo",
+			Value:    pseudo,
+			Path:     "/",
+			MaxAge:   3600,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
+		}
+		http.SetCookie(w, &cookie)
 	}
 	err := connexion.Execute(w, ff)
 	if err != nil {
