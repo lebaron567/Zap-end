@@ -222,5 +222,6 @@ func HashPassword(password string) string {
 
 func CheckPasswordHash(password string, hash string) bool {
 	hashingErr := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	fmt.Println(hashingErr)
 	return hashingErr == nil
 }
