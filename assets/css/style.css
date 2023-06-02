@@ -29,8 +29,6 @@ body{
     align-items: center;
 }
 .search-form {
-    right: 300px;
-    position: absolute;
     margin-top: 0%;
 }
 .search-input {
@@ -55,16 +53,17 @@ p{
 }
 
 .post {
-    position: relative;
     background-color: #eff5f5;
     border: solid;
     text-align: center;
     box-sizing: content-box;
     width: 400px;
-    left: 400px;
     margin-top: 50px;
     display: flex;
     align-items: flex-start;
     flex-direction: column;
 }
-
+.box{
+    position: relative;
+    left: 340px;
+}

@@ -28,18 +28,36 @@
             {{.}}
         </div>
     </div>
-    <div class="search-form">
-        <input type="text" placeholder="Recherche" class="search-input">
-        <button type="submit" class="search-button">Rechercher</button>
-    </div>
-    <div class="post">
-        <p>{{.User}}</p>
-        <hr>
-        <div class="message"> 
-         <h1>{{.Message}}</h1>
+    <div class="box">
+        <div class="search-form">
+            <input type="text" placeholder="Recherche" class="search-input">
+            <button type="submit" class="search-button">Rechercher</button>
         </div>
-        <hr>
-        <p>like: {{.NBLike}}</p>
+        <div class="post">
+            <p>Christian</p>
+            <hr>
+            <div class="message"> 
+            <p>voici le message de Christian</p>
+            </div>
+            <hr>
+            <p>like:20</p>
+        </div>
+        <div class=" post">
+            <p>freind</p>
+            <hr>
+            <div class="message"> 
+            <p>voici le message de mon ami</p>
+            </div>
+            <hr>
+            <p>like: 20</p>   
+        </div>
+        <div class="post">
+            <h2>Envoyer un message</h2>
+            <form action="/send-message" method="POST">
+                <textarea name="message" placeholder="Votre message" class="message-input"></textarea>
+                <button type="submit" class="send-button">Envoyer</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>
