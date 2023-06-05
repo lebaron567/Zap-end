@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/style.css'>
-    <title>message privée</title>
+    <title>messages</title>
 </head>
 <body>
     <div class="menu">
@@ -29,35 +29,14 @@
         </div>
     </div>
     <div class="box">
-        <div class="search-form">
-            <input type="text" placeholder="Recherche" class="search-input">
+        <form class="search-form"  method="POST">
+            <input type="text" name="search" placeholder="Recherche" class="search-input">
             <button type="submit" class="search-button">Rechercher</button>
-        </div>
-        <div class="post">
-            <p>Christian</p>
-            <hr>
-            <div class="message"> 
-            <p>voici le message de Christian</p>
-            </div>
-            <hr>
-            <p>like:20</p>
-        </div>
-        <div class=" post">
-            <p>freind</p>
-            <hr>
-            <div class="message"> 
-            <p>voici le message de mon ami</p>
-            </div>
-            <hr>
-            <p>like: 20</p>   
-        </div>
-        <div class="post">
-            <h2>Envoyer un message</h2>
-            <form action="/send-message" method="POST">
-                <textarea name="message" placeholder="Votre message" class="message-input"></textarea>
-                <button type="submit" class="send-button">Envoyer</button>
-            </form>
-        </div>
-    </div>
+        </form>
+        <form class="input-container"  method="POST">
+            <input type="text" name="message" class="message-input" placeholder="Entrez votre message">
+            <button class="send-button">Envoyer</button>
+        </form>
+    </div>    
 </body>
 </html>

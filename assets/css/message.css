@@ -54,7 +54,6 @@
 p{
     margin: 0;
 }
-
 .post {
     margin: 10px 0;
     border: none;
@@ -64,9 +63,12 @@ p{
 }
 
 .message-input {
-    width: 100%;
-    height: 100px;
-    padding: 5px;
+    width: 250px;
+    height: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 250px;
 }
 
 .send-button {
@@ -74,5 +76,27 @@ p{
     background-color: rgb(31, 4, 210);
     color: rgb(31, 30, 33);
     border: none;
+    border-radius: 5px;
+    margin-left: 10px;
+    
 
+}
+.input-container {
+    display: flex;
+    width: 600px;
+    height: 400px;
+    position: relative;
+    margin-top: 100px;
+
+}
+
+.input-container input[type="text"] {
+    flex: 1;
+    padding: 5px;
+}
+
+.input-container button {
+    padding: 5px 10px;
+    margin-left: 10px;
+    color: blue;
 }

@@ -157,6 +157,11 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func Message(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+	    search := r.FormValue("search")
+		message := r.FormValue("message")
+		fmt.Println(search,message)
+	}
 	dataUser := DataUser{}
 	cookie, err2 := r.Cookie("pseudo")
 	if err2 != nil {
