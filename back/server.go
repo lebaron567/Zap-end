@@ -10,6 +10,7 @@ import (
 	"text/template"
 )
 
+var post = template.Must(template.ParseFiles("template/post.html"))
 var home = template.Must(template.ParseFiles("template/home.html"))
 var registration = template.Must(template.ParseFiles("template/registration.html"))
 var connexion = template.Must(template.ParseFiles("template/connexion.html"))
@@ -36,6 +37,7 @@ type Post struct{
 
 func main() {
 	back.InitBDD()
+	http.HandleFunc("/post", Post)
 	http.HandleFunc("/home", Home)
 	http.HandleFunc("/registration", Registration)
 	http.HandleFunc("/explorer", Explorer)
@@ -49,6 +51,40 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
+func Post(w http.ResponseWriter, r *http.Request) {
+	dataUser := DataUser{}
+	cookie, err2 := r.Cookie("pseudo")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
+			http.Redirect(w, r, "/connexion", http.StatusFound)
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		dataUser = DataUser{Cookis: cookie.Value}
+		fmt.Println(dataUser)
+	}
+	if r.Method == "POST" {
+
+		title := r.FormValue("title")
+		content := r.FormValue("content")
+		database := back.OpenBDD()
+		var id_user int
+		err := database.QueryRow(`SELECT id FROM user WHERE pseudo_user ="` + dataUser.Cookis + `";`).Scan(&id_user)
+		if err != nil {
+			fmt.Print(err)
+		}
+		back.AddPost(id_user, title, content)
+		fmt.Print(title, content)
+	}
+	err := post.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
 func Home(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
 	// post1 := Post{User: "emeric", Message: "mesage 1",like:20}
@@ -82,7 +118,7 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
 		database := back.OpenBDD()
-		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` +pseudo+ `";`).Scan(&password_hashed_user)
+		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&password_hashed_user)
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -101,8 +137,18 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/home", http.StatusFound)
 		} else {
 			http.Redirect(w, r, "/home", http.StatusFound)
-		}
 
+		}
+		cookie := http.Cookie{
+			Name:     "pseudo",
+			Value:    pseudo,
+			Path:     "/",
+			MaxAge:   3600,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
+		}
+		http.SetCookie(w, &cookie)
 	}
 	err := connexion.Execute(w, ff)
 	if err != nil {

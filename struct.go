@@ -3,6 +3,7 @@ package back
 type post struct {
 	id           int
 	id_user      int
+	pseudo_user  string
 	title_post   string
 	content_post string
 	pseudo_user  string

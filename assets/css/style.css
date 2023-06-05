@@ -1,6 +1,9 @@
 
 body{
     background-color: rgb(53, 53, 53);
+    display: flex;
+    justify-content: space-around;
+
 }
 .menu {
     background-color: #AAEDED;
@@ -100,3 +103,30 @@ p{
 
 }
 
+.create-post{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background-color: rgb(213, 213, 213);
+    border-radius: 35px ;
+    width : 600px ;
+    height: 800px;
+}
+
+#title{
+    margin-top: 20px;
+    border-radius: 20px;
+
+    display: flex;
+    width: 550px;
+    
+}
+body .create-post form textarea{
+    border-radius: 10px;
+    display: flex;
+    text-align:left;
+    width: 550px;
+    resize: none;
+  
+    padding: 10px;
+}
