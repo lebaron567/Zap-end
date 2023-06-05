@@ -105,21 +105,22 @@ func GetAllUsers() {
 	}
 }
 
-func GetAlPosts() {
+func GetAlPosts() []post {
 	var post post
 	var id int = 0
 	var id_user int = 0
 	var title_post string = ""
 	var content_post string = ""
+	var pseudo_user string = ""
 	posts = append(posts, post)
 	database := OpenBDD()
-	rows, err := database.Query("SELECT * FROM post")
+	rows, err := database.Query("SELECT id, id_user, title_post,content_post, pseudo_user FROM post NATURAL JOIN user;")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&id, &id_user, &title_post, &content_post)
+		err = rows.Scan(&id, &id_user, &title_post, &content_post, &pseudo_user)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -127,8 +128,10 @@ func GetAlPosts() {
 		post.id_user = id_user
 		post.title_post = title_post
 		post.content_post = content_post
+		post.pseudo_user = pseudo_user
 		posts = append(posts, post)
 	}
+	return posts
 }
 func GetAlComments() {
 	var comment comment
@@ -225,3 +228,4 @@ func CheckPasswordHash(password string, hash string) bool {
 	fmt.Println(hashingErr)
 	return hashingErr == nil
 }
+

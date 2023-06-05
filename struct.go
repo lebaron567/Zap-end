@@ -6,6 +6,7 @@ type post struct {
 	pseudo_user  string
 	title_post   string
 	content_post string
+	pseudo_user  string
 }
 type comment struct {
 	id              int
