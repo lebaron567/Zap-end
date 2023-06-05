@@ -28,6 +28,12 @@ type Data struct {
 	NBLike int
 }
 
+type Post struct{
+	User,
+	Message string
+	like int
+}
+
 func main() {
 	back.InitBDD()
 	http.HandleFunc("/home", Home)
@@ -45,6 +51,10 @@ func main() {
 
 func Home(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
+	// post1 := Post{User: "emeric", Message: "mesage 1",like:20}
+	// post2 := Post{User: "lebaron", Message: "mesage 2",like:56}
+	// posts := []Post{post1,post2}
+	posts := back.GetAlPosts()
 	cookie, err2 := r.Cookie("pseudo")
 	if err2 != nil {
 		switch {
@@ -59,7 +69,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		dataUser = DataUser{Cookis: cookie.Value}
 		fmt.Println(dataUser)
 	}
-	err := home.Execute(w, dataUser)
+	err := home.Execute(w, posts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
