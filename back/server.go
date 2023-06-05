@@ -28,6 +28,13 @@ type Data struct {
 	NBLike int
 }
 
+type MyData struct {
+	User,
+	Message string
+	NBLike int
+
+}
+
 func main() {
 	back.InitBDD()
 	http.HandleFunc("/home", Home)
@@ -66,7 +73,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func Connexion(w http.ResponseWriter, r *http.Request) {
-
+  
 	if r.Method == "POST" {
 		var password_hashed_user string
 		pseudo := r.FormValue("pseudo")
@@ -157,9 +164,11 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func Message(w http.ResponseWriter, r *http.Request) {
+  var data MyData
+  data.Message="voila un message"
 	if r.Method == "POST" {
 	    search := r.FormValue("search")
-		message := r.FormValue("message")
+		data.Message = r.FormValue("message")
 		fmt.Println(search,message)
 	}
 	dataUser := DataUser{}
@@ -175,8 +184,9 @@ func Message(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
+		fmt.Println(dataUser)
 	}
-	err := message.Execute(w, dataUser)
+	err := message.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
