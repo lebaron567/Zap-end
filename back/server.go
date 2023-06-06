@@ -32,7 +32,6 @@ type MyData struct {
 	User,
 	Message string
 	NBLike int
-
 }
 
 func main() {
@@ -73,13 +72,13 @@ func Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func Connexion(w http.ResponseWriter, r *http.Request) {
-  
+
 	if r.Method == "POST" {
 		var password_hashed_user string
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
 		database := back.OpenBDD()
-		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` +pseudo+ `";`).Scan(&password_hashed_user)
+		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&password_hashed_user)
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -164,12 +163,19 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func Message(w http.ResponseWriter, r *http.Request) {
-  var data MyData
-  data.Message="voila un message"
+	var data MyData
+	var data2 MyData
+	var datas []MyData
+    data.User= "User1"
+    data2.User= "User2"
+	data.Message = "voila un message"
+	data2.Message = "voila un 2e message"
+	datas = append(datas, data)
+	datas = append(datas, data2)
 	if r.Method == "POST" {
-	    search := r.FormValue("search")
+		search := r.FormValue("search")
 		data.Message = r.FormValue("message")
-		fmt.Println(search,message)
+		fmt.Println(search, message)
 	}
 	dataUser := DataUser{}
 	cookie, err2 := r.Cookie("pseudo")
@@ -186,7 +192,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 		dataUser = DataUser{Cookis: cookie.Value}
 		fmt.Println(dataUser)
 	}
-	err := message.Execute(w, data)
+	err := message.Execute(w, datas)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

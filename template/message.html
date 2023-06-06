@@ -5,27 +5,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/style.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/message.css'>
     <title>messages</title>
 </head>
 <body>
     <div class="menu">
         <div class=boutons>
             <form action="/home">
-                <button type="submit" class="bounton-nav"> Accuille </button>
+                <button type="submit" class="button-nav"> Accuille </button>
             </form>
              <form action="/explorer">
-                <button type="submit" class="bounton-nav"> Explorent </button>
+                <button type="submit" class="button-nav"> Explorent </button>
             </form>
             <form action="/message">
-                <button type="submit" class="bounton-nav"> Message priver </button>
+                <button type="submit" class="button-nav"> Message priver </button>
             </form>
             <form action="/profil">
-                <button type="submit" class="bounton-nav"> Profil </button>
+                <button type="submit" class="button-nav"> Profil </button>
             </form>
             <form action="/home">
-                <button type="submit" class="bounton-nav"> notifi </button>
+                <button type="submit" class="button-nav"> notifi </button>
             </form>
-            {{.}}
         </div>
     </div>
     <div class="box">
@@ -37,7 +37,12 @@
             <input type="text" name="message" class="message-input" placeholder="Entrez votre message">
             <button class="send-button">Envoyer</button>
         </form>
+        {{range .}}
+    <div class="message">
+        {{.User}}
         {{.Message}}
+    </div>
+    {{end}}
     </div>    
 </body>
 </html>
