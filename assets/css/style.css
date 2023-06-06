@@ -1,10 +1,13 @@
 
 body{
     background-color: rgb(53, 53, 53);
+    display: flex;
+    justify-content: space-around;
+
 }
 .menu {
     background-color: #AAEDED;
-    position: absolute;
+    position: fixed;
     top:0;
     left:0;
     bottom:0; 
@@ -16,21 +19,45 @@ body{
     display: flex;
     border: none;
     background-color: #AAEDED;
-    padding: 15px;
+    padding: 8px;
+
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 29px;
+    line-height: 39px;
+    color: #D3B139;
+    border-radius: 50px;
 }
 
 .bounton-nav:hover{
     background-color: #6bd1d1;
 }
+
 .boutons {
     padding-top: 70px;
     display: flex;
     justify-content: center;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    position: relative;
+    left: 61px;
 }
-.search-form {
-    margin-top: 0%;
+
+
+.imgHome {
+    width: 40px;
+    height: 45px;
+}
+
+img.imgExplorer {
+    width: 37px;
+}
+
+#box_boutonNav {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
 }
 .search-input {
     padding: 10px;
@@ -64,8 +91,36 @@ p{
     align-items: flex-start;
     flex-direction: column;
 }
-.box{
-    position: relative;
-    left: 340px;
-    width: 80%;
+
+.create-post{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background-color: rgb(213, 213, 213);
+    border-radius: 35px ;
+    width : 600px ;
+    height: 800px;
 }
+
+#title{
+    margin-top: 20px;
+    border-radius: 20px;
+
+    display: flex;
+    width: 550px;
+    
+}
+body .create-post form textarea{
+    border-radius: 10px;
+    display: flex;
+    text-align:left;
+    width: 550px;
+    resize: none;
+  
+    padding: 10px;
+}
+.box{
+    position: absolute;
+    left: 337px;
+}
+
