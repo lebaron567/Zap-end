@@ -114,7 +114,6 @@ func GetAlPosts() []Post {
 	var title_post string = ""
 	var content_post string = ""
 	var pseudo_user string = ""
-	posts = append(posts, post)
 	database := OpenBDD()
 	rows, err := database.Query("SELECT id_post, id_user, title_post,content_post, pseudo_user FROM post NATURAL JOIN user;")
 	if err != nil {
