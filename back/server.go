@@ -29,8 +29,6 @@ type Data struct {
 	NBLike int
 }
 
-
-
 func main() {
 	back.InitBDD()
 	http.HandleFunc("/post", Post)

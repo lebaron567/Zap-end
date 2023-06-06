@@ -230,4 +230,3 @@ func CheckPasswordHash(password string, hash string) bool {
 	fmt.Println(hashingErr)
 	return hashingErr == nil
 }
-

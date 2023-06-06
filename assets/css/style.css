@@ -124,3 +124,9 @@ body .create-post form textarea{
   
     padding: 10px;
 }
+.box{
+    position: relative;
+    left: 337px;
+
+}
+
