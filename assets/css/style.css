@@ -9,6 +9,7 @@ body{
     left:0;
     bottom:0; 
     width: 331px;
+    position: fixed;
 }
 
 .bounton-nav{
@@ -66,4 +67,5 @@ p{
 .box{
     position: relative;
     left: 340px;
+    width: 80%;
 }
