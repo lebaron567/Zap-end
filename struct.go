@@ -1,12 +1,11 @@
 package back
 
-type post struct {
-	id           int
-	id_user      int
-	pseudo_user  string
-	title_post   string
-	content_post string
-	pseudo_user  string
+type Post struct {
+	Id           int
+	Id_user      int
+	Pseudo_user  string
+	Title_post   string
+	Content_post string
 }
 type comment struct {
 	id              int

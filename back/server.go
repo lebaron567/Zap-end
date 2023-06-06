@@ -29,11 +29,7 @@ type Data struct {
 	NBLike int
 }
 
-type Post struct{
-	User,
-	Message string
-	like int
-}
+
 
 func main() {
 	back.InitBDD()
@@ -73,7 +69,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		content := r.FormValue("content")
 		database := back.OpenBDD()
 		var id_user int
-		err := database.QueryRow(`SELECT id FROM user WHERE pseudo_user ="` + dataUser.Cookis + `";`).Scan(&id_user)
+		err := database.QueryRow(`SELECT id_user FROM user WHERE pseudo_user ="` + dataUser.Cookis + `";`).Scan(&id_user)
 		if err != nil {
 			fmt.Print(err)
 		}
