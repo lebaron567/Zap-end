@@ -135,16 +135,6 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/home", http.StatusFound)
 
 		}
-		cookie := http.Cookie{
-			Name:     "pseudo",
-			Value:    pseudo,
-			Path:     "/",
-			MaxAge:   3600,
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteLaxMode,
-		}
-		http.SetCookie(w, &cookie)
 	}
 	err := connexion.Execute(w, ff)
 	if err != nil {
