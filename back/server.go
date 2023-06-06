@@ -29,12 +29,6 @@ type Data struct {
 	NBLike int
 }
 
-type Post struct{
-	User,
-	Message string
-	like int
-}
-
 func main() {
 	back.InitBDD()
 	http.HandleFunc("/post", Post)

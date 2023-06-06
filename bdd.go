@@ -127,8 +127,8 @@ func GetAlPosts() []post {
 		post.id = id
 		post.id_user = id_user
 		post.title_post = title_post
-		post.content_post = content_post
-		post.pseudo_user = pseudo_user
+		post.Content_post = content_post
+		post.Pseudo_user = pseudo_user
 		posts = append(posts, post)
 	}
 	return posts
@@ -228,4 +228,3 @@ func CheckPasswordHash(password string, hash string) bool {
 	fmt.Println(hashingErr)
 	return hashingErr == nil
 }
-

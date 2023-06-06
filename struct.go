@@ -3,10 +3,9 @@ package back
 type post struct {
 	id           int
 	id_user      int
-	pseudo_user  string
 	title_post   string
-	content_post string
-	pseudo_user  string
+	Content_post string
+	Pseudo_user  string
 }
 type comment struct {
 	id              int
