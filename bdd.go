@@ -20,45 +20,50 @@ func OpenBDD() *sql.DB {
 	return database
 }
 
+var users []user
+
+var comments []comment
+var likes []like
+
 func InitBDD() {
 	database := OpenBDD()
 	defer database.Close()
 	tmp := `
 	CREATE TABLE IF NOT EXISTS "user" (
-		"id"					INTEGER NOT NULL UNIQUE,
+		"id_user"					INTEGER NOT NULL UNIQUE,
 		"age"					INTEGER NOT NULL,
 		"firstname_user"		VARCHAR(20) NOT NULL,
 		"lastname_user"			VARCHAR(30) NOT NULL,
 		"email_user"			VARCHAR(50) NOT NULL UNIQUE,
 		"password_hashed_user"	VARCHAR(45) NOT NULL,
 		"pseudo_user"			ARCHAR(20) NOT NULL UNIQUE,
-		PRIMARY KEY("id" AUTOINCREMENT)
+		PRIMARY KEY("id_user" AUTOINCREMENT)
 		
 	);
 
-
 	CREATE TABLE IF NOT EXISTS "post" (
-		"id"	INTEGER NOT NULL UNIQUE,
-		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id),
-		"title_post" VARCHAR(50) NOT NULL,
-		"content_post" 	LONGTEXT NOT NULL,
-		PRIMARY KEY("id" AUTOINCREMENT)
-		
+		"id_post"			INTEGER NOT NULL UNIQUE,
+		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
+		"title_post" 		VARCHAR(50) NOT NULL,
+		"content_post" 		LONGTEXT NOT NULL,
+		PRIMARY KEY("id_post" AUTOINCREMENT)
+
 	);
 
 	CREATE TABLE IF NOT EXISTS "comment" (
-		"id"	INTEGER NOT NULL UNIQUE,
-		id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id),
-		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id),
+		"id_comment"	INTEGER NOT NULL UNIQUE,
+		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
+		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
 		"content_comment" 	LONGTEXT NOT NULL,
-		PRIMARY KEY("id" AUTOINCREMENT)
+		PRIMARY KEY("id_comment" AUTOINCREMENT)
 	);
 
 	CREATE TABLE IF NOT EXISTS "like" (
-		"id"	INTEGER NOT NULL UNIQUE,
-		id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id),
+		"id_like"	INTEGER NOT NULL UNIQUE,
+		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
+		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
 		"effet"   BOOLEAN, 
-		PRIMARY KEY("id" AUTOINCREMENT)
+		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
 	`
 
@@ -69,134 +74,146 @@ func InitBDD() {
 
 }
 
-func GetAllFeildInTable(table string) [][]string {
-
-	var result [][]string
+func GetAllUsers() {
+	var user user
+	var id int = 0
+	var age int = 0
+	var firstname string = ""
+	var lastname string = ""
+	var email string = ""
+	var password string = ""
+	var pseudo string = ""
+	users = append(users, user)
 	database := OpenBDD()
-	rows, err := database.Query("SELECT * FROM " + table)
+	rows, err := database.Query("SELECT * FROM user")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var feildOfTable []string
-		var id int
-		var age int
-		var firstname string
-		var lastname string
-		var email string
-		var password string
-		var pseudo string
 		err = rows.Scan(&id, &age, &firstname, &lastname, &email, &password, &pseudo)
 		if err != nil {
 			log.Fatal(err)
 		}
-		feildOfTable = append(feildOfTable, strconv.Itoa(id), strconv.Itoa(age), firstname, lastname, email, password, pseudo)
-		result = append(result, feildOfTable)
-
+		user.id = id
+		user.age = age
+		user.firstname_user = firstname
+		user.lastname_user = lastname
+		user.email_user = email
+		user.password_hashed_user = password
+		user.pseudo_user = pseudo
+		users = append(users, user)
 	}
-	return result
 }
 
-func GetFeildInTable(feild string, table string) []string {
-	var feildOfTable []string
+func GetAlPosts() []Post {
+	var post Post
+	var posts []Post
+	var id int = 0
+	var id_user int = 0
+	var title_post string = ""
+	var content_post string = ""
+	var pseudo_user string = ""
 	database := OpenBDD()
-	rows, err := database.Query("SELECT " + feild + " FROM " + table)
-
+	rows, err := database.Query("SELECT id_post, id_user, title_post,content_post, pseudo_user FROM post NATURAL JOIN user;")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer rows.Close()
-
 	for rows.Next() {
-
-		var id int
-		var age int
-		var firstname string
-		var lastname string
-		var email string
-		var password string
-		var pseudo string
-		if feild == "*" {
-			err = rows.Scan(&id, &age, &firstname, &lastname, &email, &password, &pseudo)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, strconv.Itoa(id), strconv.Itoa(age), firstname, lastname, email, password, pseudo)
+		err = rows.Scan(&id, &id_user, &title_post, &content_post, &pseudo_user)
+		if err != nil {
+			log.Fatal(err)
 		}
-		if feild == "id" {
-			err = rows.Scan(&id)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, strconv.Itoa(id))
-
+		post.Id = id
+		post.Id_user = id_user
+		post.Title_post = title_post
+		post.Content_post = content_post
+		post.Pseudo_user = pseudo_user
+		posts = append(posts, post)
+	}
+	return posts
+}
+func GetAlComments() {
+	var comment comment
+	var id int
+	var id_post int
+	var id_user int
+	var content_comment string
+	database := OpenBDD()
+	rows, err := database.Query("SELECT * FROM comment")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&id, &id_post, &id_user, &content_comment)
+		if err != nil {
+			log.Fatal(err)
 		}
-		if feild == "age" {
-			err = rows.Scan(&age)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, strconv.Itoa(age))
-
-		}
-		if feild == "firstname" {
-			err = rows.Scan(&firstname)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, firstname)
-		}
-		if feild == "lastname" {
-			err = rows.Scan(&lastname)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, lastname)
-		}
-		if feild == "email" {
-			err = rows.Scan(&email)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, email)
-		}
-		if feild == "password" {
-			err = rows.Scan(&password)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, password)
-		}
-		if feild == "pseudo" {
-			err = rows.Scan(&pseudo)
-			if err != nil {
-				log.Fatal(err)
-			}
-			feildOfTable = append(feildOfTable, pseudo)
-		}
+		comment.id = id
+		comment.id_post = id_post
+		comment.id_user = id_user
+		comment.content_comment = content_comment
+		comments = append(comments, comment)
 
 	}
-	return feildOfTable
+}
+func GetAlLikes() {
+	var like like
+	var id int
+	var id_post int
+	var effect bool
+	database := OpenBDD()
+	rows, err := database.Query("SELECT * FROM like")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&id, &id_post, &effect)
+		if err != nil {
+			log.Fatal(err)
+		}
+		like.id = id
+		like.id_post = id_post
+		like.effet = effect
+		likes = append(likes, like)
+	}
 }
 
-func AddUser(age int, firstname string, lastname string, email string, password string, pseudo string) {
+func AddUser(age int, firstname string, lastname string, email string, password string, pseudo string) error {
 	database := OpenBDD()
 	password = HashPassword(password)
 	fmt.Println(password)
 	if age < 13 {
-		log.Fatal("grandis et tu pourras parler")
+		return fmt.Errorf("age<13")
 	}
-	statement, BDDerr := database.Prepare(`INSERT INTO user(age, firstname_user, lastname_user, email_user, password_user, pseudo_user) VALUES(?,?,?,?,?,?);`)
+	statement, BDDerr := database.Prepare(`INSERT INTO user(age, firstname_user, lastname_user, email_user, password_hashed_user, pseudo_user) VALUES(?,?,?,?,?,?);`)
 	if BDDerr != nil {
-		log.Fatal("ERROR 500 : error Prepare new user \n ", BDDerr)
+		return BDDerr
 	}
 	_, BDDerr = statement.Exec(strconv.Itoa(age), firstname, lastname, email, password, pseudo)
 	if BDDerr != nil {
-		log.Fatal("ERROR 500 : error exec new user \n ", BDDerr)
+		return BDDerr
 	}
 	defer database.Close()
+	return nil
+}
+func AddPost(id_user int, title_post string, content_post string) error {
+	database := OpenBDD()
+	statement, BDDerr := database.Prepare(`INSERT INTO post(id_user, title_post, content_post) VALUES(?,?,?)`)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	_, BDDerr = statement.Exec(id_user, title_post, content_post)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	defer database.Close()
+	return nil
 }
 
 func HashPassword(password string) string {
@@ -209,5 +226,6 @@ func HashPassword(password string) string {
 
 func CheckPasswordHash(password string, hash string) bool {
 	hashingErr := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	fmt.Println(hashingErr)
 	return hashingErr == nil
 }
