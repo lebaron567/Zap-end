@@ -21,7 +21,7 @@ func OpenBDD() *sql.DB {
 }
 
 var users []user
-var posts []post
+
 var comments []comment
 var likes []like
 
@@ -30,39 +30,40 @@ func InitBDD() {
 	defer database.Close()
 	tmp := `
 	CREATE TABLE IF NOT EXISTS "user" (
-		"id"					INTEGER NOT NULL UNIQUE,
+		"id_user"					INTEGER NOT NULL UNIQUE,
 		"age"					INTEGER NOT NULL,
 		"firstname_user"		VARCHAR(20) NOT NULL,
 		"lastname_user"			VARCHAR(30) NOT NULL,
 		"email_user"			VARCHAR(50) NOT NULL UNIQUE,
 		"password_hashed_user"	VARCHAR(45) NOT NULL,
 		"pseudo_user"			ARCHAR(20) NOT NULL UNIQUE,
-		PRIMARY KEY("id" AUTOINCREMENT)
+		PRIMARY KEY("id_user" AUTOINCREMENT)
 		
 	);
 
 	CREATE TABLE IF NOT EXISTS "post" (
-		"id"				INTEGER NOT NULL UNIQUE,
-		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id),
+		"id_post"			INTEGER NOT NULL UNIQUE,
+		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
 		"title_post" 		VARCHAR(50) NOT NULL,
 		"content_post" 		LONGTEXT NOT NULL,
-		PRIMARY KEY("id" AUTOINCREMENT)
+		PRIMARY KEY("id_post" AUTOINCREMENT)
 
 	);
 
 	CREATE TABLE IF NOT EXISTS "comment" (
-		"id"	INTEGER NOT NULL UNIQUE,
-		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id),
-		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id),
+		"id_comment"	INTEGER NOT NULL UNIQUE,
+		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
+		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
 		"content_comment" 	LONGTEXT NOT NULL,
-		PRIMARY KEY("id" AUTOINCREMENT)
+		PRIMARY KEY("id_comment" AUTOINCREMENT)
 	);
 
 	CREATE TABLE IF NOT EXISTS "like" (
-		"id"	INTEGER NOT NULL UNIQUE,
-		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id),
+		"id_like"	INTEGER NOT NULL UNIQUE,
+		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
+		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
 		"effet"   BOOLEAN, 
-		PRIMARY KEY("id" AUTOINCREMENT)
+		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
 	`
 
@@ -105,8 +106,9 @@ func GetAllUsers() {
 	}
 }
 
-func GetAlPosts() []post {
-	var post post
+func GetAlPosts() []Post {
+	var post Post
+	var posts []Post
 	var id int = 0
 	var id_user int = 0
 	var title_post string = ""
@@ -114,7 +116,7 @@ func GetAlPosts() []post {
 	var pseudo_user string = ""
 	posts = append(posts, post)
 	database := OpenBDD()
-	rows, err := database.Query("SELECT id, id_user, title_post,content_post, pseudo_user FROM post NATURAL JOIN user;")
+	rows, err := database.Query("SELECT id_post, id_user, title_post,content_post, pseudo_user FROM post NATURAL JOIN user;")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -124,11 +126,11 @@ func GetAlPosts() []post {
 		if err != nil {
 			log.Fatal(err)
 		}
-		post.id = id
-		post.id_user = id_user
-		post.title_post = title_post
-		post.content_post = content_post
-		post.pseudo_user = pseudo_user
+		post.Id = id
+		post.Id_user = id_user
+		post.Title_post = title_post
+		post.Content_post = content_post
+		post.Pseudo_user = pseudo_user
 		posts = append(posts, post)
 	}
 	return posts
