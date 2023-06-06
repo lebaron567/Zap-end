@@ -12,6 +12,7 @@ body{
     left:0;
     bottom:0; 
     width: 331px;
+    position: fixed;
 }
 
 .bounton-nav{
@@ -83,7 +84,6 @@ p{
 }
 
 .post {
-    position: relative;
     background-color: #eff5f5;
     border: solid;
     text-align: center;
