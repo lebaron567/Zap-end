@@ -97,12 +97,6 @@ p{
     flex-direction: column;
 }
 
-.box{
-    position: relative;
-    left: 337px;
-
-}
-
 .create-post{
     display: flex;
     justify-content: center;
