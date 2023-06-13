@@ -170,6 +170,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		//fmt.Println(prenom, nom, email, pseudo, password, age)
 		bdderr := back.AddUser(id.String(), age, prenom, nom, email, password, pseudo)
 		if bdderr != nil {
+			fmt.Println(bdderr)
 		} else {
 			cookie := http.Cookie{
 				Name:     "uuid",

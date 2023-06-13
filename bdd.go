@@ -131,6 +131,7 @@ func GetAlPosts() []Post {
 		post.Title_post = title_post
 		post.Content_post = content_post
 		post.Pseudo_user = pseudo_user
+		fmt.Println(post)
 		posts = append(posts, post)
 	}
 	return posts
