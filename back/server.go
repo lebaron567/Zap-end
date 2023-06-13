@@ -4,7 +4,7 @@ import (
 	"back"
 	"errors"
 	"fmt"
-	// "strings"
+	"strings"
 	"log"
 	"net/http"
 	"strconv"
@@ -111,14 +111,19 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		dataUser = DataUser{Cookis: cookie.Value}
 		fmt.Println(dataUser)
 	}
-	// if r.Method == "POST"{
-	// 	effect := r.FormValue("effect")
-	// 	postEffect := strings.Split(effect, ",")
-	// 	BDDerr := AddLikeAndDislike(postEffect[0], /*inséré l'id du user qui effectue l'ation*/,postEffect[1])
-	// 	if BDDerr != nil {
-	// 		http.Error(w, "Error 500" BDDerr)
-	// 	}
-	// }
+	if r.Method == "POST"{
+		input := r.FormValue("effect")
+		tmp := strings.Split(input, ",")
+		post_id, err := strconv.Atoi(tmp[0])
+		if err != nil{
+			log.Fatal(err)
+		}
+		user_id := back.GetIDUserFromUUID(dataUser.Cookis)
+		BDDerr := back.AddLikeAndDislike(post_id, user_id , tmp[1])
+		if BDDerr != nil {
+			http.Error(w, "Error 500", http.StatusInternalServerError)
+		}
+	}
 	fmt.Println(posts)
 	err := home.Execute(w, posts)
 	if err != nil {

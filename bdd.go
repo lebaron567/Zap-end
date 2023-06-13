@@ -217,7 +217,7 @@ func AddPost(id_user int, title_post string, content_post string) error {
 	return nil
 }
 
-func AddLikeAndDislike(id_post int, id_user int,  effect int) error {
+func AddLikeAndDislike(id_post int, id_user int,  effect string) error {
 	database := OpenBDD()
 
 	statement, BDDerr := database.Prepare(`INSERT INTO like(id_post, title_user, effect) VALUES(?,?,?)`)
@@ -225,7 +225,7 @@ func AddLikeAndDislike(id_post int, id_user int,  effect int) error {
 		defer database.Close()
 		return BDDerr
 	}
-	_, BDDerr = statement.Exec(id_post, id_user, strconv.Itoa(effect))
+	_, BDDerr = statement.Exec(id_post, id_user, effect)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
@@ -241,9 +241,11 @@ func GetIDUserFromUUID(uuid string) int{
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	err = rows.Scan(&id_user)
-	if err != nil {
-		log.Fatal(err)
+	for rows.Next() {
+		err = rows.Scan(&id_user)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	return id_user
 }
