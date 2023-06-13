@@ -31,7 +31,7 @@ func InitBDD() {
 	tmp := `
 	CREATE TABLE IF NOT EXISTS "user" (
 		"id_user"				INTEGER NOT NULL UNIQUE,
-		"uuid" 					INTEGER NOT NULL UNIQUE,
+		"uuid" 					VARCHAR(36) NOT NULL UNIQUE,
 		"age"					INTEGER NOT NULL,
 		"firstname_user"		VARCHAR(20) NOT NULL,
 		"lastname_user"			VARCHAR(30) NOT NULL,
