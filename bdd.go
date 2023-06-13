@@ -30,7 +30,8 @@ func InitBDD() {
 	defer database.Close()
 	tmp := `
 	CREATE TABLE IF NOT EXISTS "user" (
-		"id_user"					INTEGER NOT NULL UNIQUE,
+		"id_user"				INTEGER NOT NULL UNIQUE,
+		"uuid" 					INTEGER NOT NULL UNIQUE,
 		"age"					INTEGER NOT NULL,
 		"firstname_user"		VARCHAR(20) NOT NULL,
 		"lastname_user"			VARCHAR(30) NOT NULL,
@@ -182,18 +183,18 @@ func GetAlLikes() {
 	}
 }
 
-func AddUser(age int, firstname string, lastname string, email string, password string, pseudo string) error {
+func AddUser(id string, age int, firstname string, lastname string, email string, password string, pseudo string) error {
 	database := OpenBDD()
 	password = HashPassword(password)
-	fmt.Println(password)
+	//fmt.Println(password)
 	if age < 13 {
 		return fmt.Errorf("age<13")
 	}
-	statement, BDDerr := database.Prepare(`INSERT INTO user(age, firstname_user, lastname_user, email_user, password_hashed_user, pseudo_user) VALUES(?,?,?,?,?,?);`)
+	statement, BDDerr := database.Prepare(`INSERT INTO user(uuid, age, firstname_user, lastname_user, email_user, password_hashed_user, pseudo_user) VALUES(?,?,?,?,?,?,?);`)
 	if BDDerr != nil {
 		return BDDerr
 	}
-	_, BDDerr = statement.Exec(strconv.Itoa(age), firstname, lastname, email, password, pseudo)
+	_, BDDerr = statement.Exec(id, strconv.Itoa(age), firstname, lastname, email, password, pseudo)
 	if BDDerr != nil {
 		return BDDerr
 	}
@@ -226,6 +227,6 @@ func HashPassword(password string) string {
 
 func CheckPasswordHash(password string, hash string) bool {
 	hashingErr := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	fmt.Println(hashingErr)
+	//fmt.Println(hashingErr)
 	return hashingErr == nil
 }

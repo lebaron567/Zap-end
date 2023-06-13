@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"text/template"
+
+	"github.com/google/uuid"
 )
 
 var post = template.Must(template.ParseFiles("template/post.html"))
@@ -44,6 +46,9 @@ func main() {
 	http.HandleFunc("/message", Message)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
+	id := uuid.New()
+	fmt.Println("Generated UUID:")
+	fmt.Println(id.String())
 
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
@@ -53,7 +58,7 @@ func main() {
 
 func Post(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -91,7 +96,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	// post2 := Post{User: "lebaron", Message: "mesage 2",like:56}
 	// posts := []Post{post1,post2}
 	posts := back.GetAlPosts()
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -118,17 +123,22 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		var password_hashed_user string
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
+		var uuid int
 		database := back.OpenBDD()
 		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&password_hashed_user)
 		if err != nil {
 			fmt.Print(err)
 		}
 		if back.CheckPasswordHash(password, password_hashed_user) {
+			err = database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&uuid)
+			if err != nil {
+				fmt.Print(err)
+			}
 			cookie := http.Cookie{
-				Name:     "pseudo",
-				Value:    pseudo,
+				Name:     "uuid",
+				Value:    strconv.Itoa(uuid),
 				Path:     "/",
-				MaxAge:   3600,
+				MaxAge:   360,
 				HttpOnly: true,
 				Secure:   true,
 				SameSite: http.SameSiteLaxMode,
@@ -136,9 +146,6 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &cookie)
 			fmt.Println(cookie)
 			http.Redirect(w, r, "/home", http.StatusFound)
-		} else {
-			http.Redirect(w, r, "/home", http.StatusFound)
-
 		}
 	}
 	err := connexion.Execute(w, ff)
@@ -159,15 +166,16 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal("strconv issue")
 		}
-		fmt.Println(prenom, nom, email, pseudo, password, age)
-		bdderr := back.AddUser(age, prenom, nom, email, password, pseudo)
+		id := uuid.New()
+		//fmt.Println(prenom, nom, email, pseudo, password, age)
+		bdderr := back.AddUser(id.String(), age, prenom, nom, email, password, pseudo)
 		if bdderr != nil {
 		} else {
 			cookie := http.Cookie{
-				Name:     "pseudo",
-				Value:    pseudo,
+				Name:     "uuid",
+				Value:    id.String(),
 				Path:     "/",
-				MaxAge:   3600,
+				MaxAge:   120,
 				HttpOnly: true,
 				Secure:   true,
 				SameSite: http.SameSiteLaxMode,
@@ -185,7 +193,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -207,8 +215,8 @@ func Message(w http.ResponseWriter, r *http.Request) {
 	var data MyData
 	var data2 MyData
 	var datas []MyData
-    data.User= "User1"
-    data2.User= "User2"
+	data.User = "User1"
+	data2.User = "User2"
 	data.Message = "voila un message"
 	data2.Message = "voila un 2e message"
 	datas = append(datas, data)
@@ -219,7 +227,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(search, message)
 	}
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -241,7 +249,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 
 func Profil(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):

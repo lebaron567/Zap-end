@@ -50,15 +50,14 @@
             <input type="text" placeholder="Recherche" class="search-input">
             <button type="submit" class="search-button">Rechercher</button>
         </div>
-        <div class="post">
-            <p>{{.User}}</p>
+        {{ range . }}
+        <div class="post"> 
+            <p>{{.Pseudo_user}}</p>
+            <p>{{.Title_post}}</p>
             <hr>
-            <div class="message"> 
-            <h1>{{.Message}}</h1>
-            </div>
-            <hr>
-            <p>like: {{.NBLike}}</p>
+            <p>{{.Content_post}}</p>
         </div>
+            {{ end }}
     </div>
 </body>
 </html>
