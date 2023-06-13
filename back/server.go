@@ -39,6 +39,7 @@ type MyData struct {
 }
 
 func main() {
+	// back.AddLikeAndDislike(1, 1, 1)
 	back.InitBDD()
 	http.HandleFunc("/post", Post)
 	http.HandleFunc("/home", Home)
@@ -79,7 +80,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		content := r.FormValue("content")
 		database := back.OpenBDD()
 		var id_user int
-		err := database.QueryRow(`SELECT id_user FROM user WHERE pseudo_user ="` + dataUser.Cookis + `";`).Scan(&id_user)
+		err := database.QueryRow(`SELECT id_user FROM user WHERE uuid ="` + dataUser.Cookis + `";`).Scan(&id_user)
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -113,9 +114,14 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method == "POST"{
 		effect := r.FormValue("effect")
-		idPost := strings.Split(effect, ",")
+		postEffect := strings.Split(effect, ",")
 		
+		BDDerr := AddLikeAndDislike(postEffect[0], /*inséré l'id du user qui effectue l'ation*/,postEffect[1])
+		if BDDerr != nil {
+			http.Error(w, "Error 500" BDDerr)
+		}
 	}
+	fmt.Println(posts)
 	err := home.Execute(w, posts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

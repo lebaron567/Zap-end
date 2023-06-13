@@ -31,7 +31,7 @@ func InitBDD() {
 	tmp := `
 	CREATE TABLE IF NOT EXISTS "user" (
 		"id_user"				INTEGER NOT NULL UNIQUE,
-		"uuid" 					INTEGER NOT NULL UNIQUE,
+		"uuid" 					VARCHAR(36) NOT NULL UNIQUE,
 		"age"					INTEGER NOT NULL,
 		"firstname_user"		VARCHAR(20) NOT NULL,
 		"lastname_user"			VARCHAR(30) NOT NULL,
@@ -41,7 +41,6 @@ func InitBDD() {
 		PRIMARY KEY("id_user" AUTOINCREMENT)
 		
 	);
-
 	CREATE TABLE IF NOT EXISTS "post" (
 		"id_post"			INTEGER NOT NULL UNIQUE,
 		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
@@ -63,7 +62,7 @@ func InitBDD() {
 		"id_like"	INTEGER NOT NULL UNIQUE,
 		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
 		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
-		"effet"   BOOLEAN, 
+		"effet"   VARCHAR(1), 
 		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
 	`
@@ -110,23 +109,23 @@ func GetAllUsers() {
 func GetAlPosts() []Post {
 	var post Post
 	var posts []Post
-	var id int = 0
+	var id_post int = 0
 	var id_user int = 0
 	var title_post string = ""
 	var content_post string = ""
 	var pseudo_user string = ""
 	database := OpenBDD()
-	rows, err := database.Query("SELECT id_post, id_user, title_post,content_post, pseudo_user FROM post NATURAL JOIN user;")
-	if err != nil {
+	rows, err := database.Query("SELECT id_post, id_user, title_post, content_post, pseudo_user FROM post NATURAL JOIN user;")
+	if err != nil { 
 		log.Fatal(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&id, &id_user, &title_post, &content_post, &pseudo_user)
+		err = rows.Scan(&id_post, &id_user, &title_post, &content_post, &pseudo_user)
 		if err != nil {
 			log.Fatal(err)
 		}
-		post.Id = id
+		post.Id_post = id_post
 		post.Id_user = id_user
 		post.Title_post = title_post
 		post.Content_post = content_post
@@ -217,8 +216,35 @@ func AddPost(id_user int, title_post string, content_post string) error {
 	return nil
 }
 
-func AddLikeAndDislike(id){
-	
+func AddLikeAndDislike(id_post int, id_user int,  effect int) error {
+	database := OpenBDD()
+
+	statement, BDDerr := database.Prepare(`INSERT INTO like(id_post, title_user, effect) VALUES(?,?,?)`)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	_, BDDerr = statement.Exec(id_post, id_user, strconv.Itoa(effect))
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	defer database.Close()
+	return nil
+}
+func GetIDUserFromUUID(uuid string) string{
+	database := OpenBDD()
+	var id_user int
+	rows, err := database.Query(`SELECT id_user FROM user WHERE uuid = '`+uuid+`';`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	err = rows.Scan(&id_user)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return id_user
 }
 
 func HashPassword(password string) string {
