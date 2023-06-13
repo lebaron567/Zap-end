@@ -47,12 +47,16 @@
             <input type="text" placeholder="Recherche" class="search-input">
             <button type="submit" class="search-button">Rechercher</button>
         </div>
-        {{.}}
-        {{ range . }}
+        {{ range $index, $post := . }}
         <div class="post"> 
             <p>{{.Pseudo_user}}</p>
             <hr>
             <p>{{.Content_post}}</p>
+            <form method="POST">
+                <button type="submit" name="effect" value="{{$index}},1">like</button>
+                <button type="submit" name="effect" value="{{$index}},-1">dislike</button>
+            </form>
+           
         </div>
             {{ end }}
     </div>

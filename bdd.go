@@ -215,6 +215,10 @@ func AddPost(id_user int, title_post string, content_post string) error {
 	return nil
 }
 
+func AddLikeAndDislike(id){
+	
+}
+
 func HashPassword(password string) string {
 	bytes, hashingErr := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if hashingErr != nil {

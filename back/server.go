@@ -4,6 +4,7 @@ import (
 	"back"
 	"errors"
 	"fmt"
+	"strings"
 	"log"
 	"net/http"
 	"strconv"
@@ -98,6 +99,11 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
 		fmt.Println(dataUser)
+	}
+	if r.Method == "POST"{
+		effect := r.FormValue("effect")
+		idPost := strings.Split(effect, ",")
+		
 	}
 	err := home.Execute(w, posts)
 	if err != nil {
