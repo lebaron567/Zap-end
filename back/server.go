@@ -20,6 +20,7 @@ var connexion = template.Must(template.ParseFiles("template/connexion.html"))
 var explorer = template.Must(template.ParseFiles("template/Explorer.html"))
 var message = template.Must(template.ParseFiles("template/message.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
+var invite = template.Must(template.ParseFiles("template/invite.html"))
 var ff = 0
 
 type DataUser struct {
@@ -48,13 +49,14 @@ func main() {
 	http.HandleFunc("/message", Message)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
+	http.HandleFunc("/explorer/inviter", Inviter)
 	id := uuid.New()
 	fmt.Println("Generated UUID:")
 	fmt.Println(id.String())
 
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	fmt.Println("Serveur start at : http://localhost:8080/home")
+	fmt.Println("Serveur start at : http://localhost:8080/explorer/inviter")
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -64,7 +66,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/connexion", http.StatusFound)
+			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -72,7 +74,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
-		fmt.Println(dataUser)
+		//fmt.Println(dataUser)
 	}
 	if r.Method == "POST" {
 
@@ -94,15 +96,12 @@ func Post(w http.ResponseWriter, r *http.Request) {
 }
 func Home(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	// post1 := Post{User: "emeric", Message: "mesage 1",like:20}
-	// post2 := Post{User: "lebaron", Message: "mesage 2",like:56}
-	// posts := []Post{post1,post2}
 	posts := back.GetAlPosts()
 	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/connexion", http.StatusFound)
+			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -133,20 +132,20 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		var password_hashed_user string
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
-		var uuid int
+		var uuid string
 		database := back.OpenBDD()
 		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&password_hashed_user)
 		if err != nil {
 			fmt.Print(err)
 		}
 		if back.CheckPasswordHash(password, password_hashed_user) {
-			err = database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&uuid)
+			err = database.QueryRow(`SELECT uuid FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&uuid)
 			if err != nil {
 				fmt.Print(err)
 			}
 			cookie := http.Cookie{
 				Name:     "uuid",
-				Value:    strconv.Itoa(uuid),
+				Value:    uuid,
 				Path:     "/",
 				MaxAge:   3600,
 				HttpOnly: true,
@@ -154,7 +153,6 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 				SameSite: http.SameSiteLaxMode,
 			}
 			http.SetCookie(w, &cookie)
-			fmt.Println(cookie)
 			http.Redirect(w, r, "/home", http.StatusFound)
 		}
 	}
@@ -208,7 +206,7 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/connexion", http.StatusFound)
+			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -242,7 +240,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/connexion", http.StatusFound)
+			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -264,7 +262,7 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/connexion", http.StatusFound)
+			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -274,6 +272,28 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 		dataUser = DataUser{Cookis: cookie.Value}
 	}
 	err := profil.Execute(w, dataUser)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func Inviter(w http.ResponseWriter, r *http.Request) {
+	dataUser := DataUser{}
+	cookie, err2 := r.Cookie("uuid")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
+
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		dataUser = DataUser{Cookis: cookie.Value}
+		//http.Redirect(w, r, "/home", http.StatusFound)
+	}
+	err := invite.Execute(w, dataUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
