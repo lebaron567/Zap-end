@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"strconv"
 	"text/template"
+
+	"github.com/google/uuid"
 )
 
 var post = template.Must(template.ParseFiles("template/post.html"))
@@ -30,6 +32,12 @@ type Data struct {
 	NBLike int
 }
 
+type MyData struct {
+	User,
+	Message string
+	NBLike int
+}
+
 func main() {
 	back.InitBDD()
 	http.HandleFunc("/post", Post)
@@ -39,6 +47,9 @@ func main() {
 	http.HandleFunc("/message", Message)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
+	id := uuid.New()
+	fmt.Println("Generated UUID:")
+	fmt.Println(id.String())
 
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
@@ -48,7 +59,7 @@ func main() {
 
 func Post(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -68,7 +79,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		content := r.FormValue("content")
 		database := back.OpenBDD()
 		var id_user int
-		err := database.QueryRow(`SELECT id FROM user WHERE pseudo_user ="` + dataUser.Cookis + `";`).Scan(&id_user)
+		err := database.QueryRow(`SELECT id_user FROM user WHERE pseudo_user ="` + dataUser.Cookis + `";`).Scan(&id_user)
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -86,7 +97,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	// post2 := Post{User: "lebaron", Message: "mesage 2",like:56}
 	// posts := []Post{post1,post2}
 	posts := back.GetAlPosts()
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -117,15 +128,20 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		var password_hashed_user string
 		pseudo := r.FormValue("pseudo")
 		password := r.FormValue("password")
+		var uuid int
 		database := back.OpenBDD()
 		err := database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&password_hashed_user)
 		if err != nil {
 			fmt.Print(err)
 		}
 		if back.CheckPasswordHash(password, password_hashed_user) {
+			err = database.QueryRow(`SELECT password_hashed_user FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&uuid)
+			if err != nil {
+				fmt.Print(err)
+			}
 			cookie := http.Cookie{
-				Name:     "pseudo",
-				Value:    pseudo,
+				Name:     "uuid",
+				Value:    strconv.Itoa(uuid),
 				Path:     "/",
 				MaxAge:   3600,
 				HttpOnly: true,
@@ -135,20 +151,7 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &cookie)
 			fmt.Println(cookie)
 			http.Redirect(w, r, "/home", http.StatusFound)
-		} else {
-			http.Redirect(w, r, "/home", http.StatusFound)
-
 		}
-		cookie := http.Cookie{
-			Name:     "pseudo",
-			Value:    pseudo,
-			Path:     "/",
-			MaxAge:   3600,
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteLaxMode,
-		}
-		http.SetCookie(w, &cookie)
 	}
 	err := connexion.Execute(w, ff)
 	if err != nil {
@@ -168,13 +171,14 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal("strconv issue")
 		}
-		fmt.Println(prenom, nom, email, pseudo, password, age)
-		bdderr := back.AddUser(age, prenom, nom, email, password, pseudo)
+		id := uuid.New()
+		//fmt.Println(prenom, nom, email, pseudo, password, age)
+		bdderr := back.AddUser(id.String(), age, prenom, nom, email, password, pseudo)
 		if bdderr != nil {
 		} else {
 			cookie := http.Cookie{
-				Name:     "pseudo",
-				Value:    pseudo,
+				Name:     "uuid",
+				Value:    id.String(),
 				Path:     "/",
 				MaxAge:   3600,
 				HttpOnly: true,
@@ -194,7 +198,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -213,8 +217,22 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func Message(w http.ResponseWriter, r *http.Request) {
+	var data MyData
+	var data2 MyData
+	var datas []MyData
+	data.User = "User1"
+	data2.User = "User2"
+	data.Message = "voila un message"
+	data2.Message = "voila un 2e message"
+	datas = append(datas, data)
+	datas = append(datas, data2)
+	if r.Method == "POST" {
+		search := r.FormValue("search")
+		data.Message = r.FormValue("message")
+		fmt.Println(search, message)
+	}
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
@@ -226,8 +244,9 @@ func Message(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
+		fmt.Println(dataUser)
 	}
-	err := message.Execute(w, dataUser)
+	err := message.Execute(w, datas)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -235,7 +254,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 
 func Profil(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("pseudo")
+	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):

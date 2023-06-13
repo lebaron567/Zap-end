@@ -7,11 +7,12 @@ body{
 }
 .menu {
     background-color: #AAEDED;
-    position: absolute;
+    position: fixed;
     top:0;
     left:0;
     bottom:0; 
     width: 331px;
+    position: fixed;
 }
 
 .bounton-nav{
@@ -43,9 +44,7 @@ body{
     left: 61px;
 }
 
-body{
-    background-color: rgb(53, 53, 53);
-}
+
 .imgHome {
     width: 40px;
     height: 45px;
@@ -59,9 +58,6 @@ img.imgExplorer {
     display: flex;
     align-items: center;
     margin-top: 20px;
-}
-.search-form {
-    margin-top: 0%;
 }
 .search-input {
     padding: 10px;
@@ -85,7 +81,6 @@ p{
 }
 
 .post {
-    position: relative;
     background-color: #eff5f5;
     border: solid;
     text-align: center;
@@ -97,9 +92,35 @@ p{
     flex-direction: column;
 }
 
-.box{
-    position: relative;
-    left: 337px;
+.create-post{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background-color: rgb(213, 213, 213);
+    border-radius: 35px ;
+    width : 600px ;
+    height: 800px;
+}
 
+#title{
+    margin-top: 20px;
+    border-radius: 20px;
+
+    display: flex;
+    width: 550px;
+    
+}
+body .create-post form textarea{
+    border-radius: 10px;
+    display: flex;
+    text-align:left;
+    width: 550px;
+    resize: none;
+  
+    padding: 10px;
+}
+.box{
+    position: absolute;
+    left: 337px;
 }
 
