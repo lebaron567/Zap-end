@@ -4,7 +4,7 @@ import (
 	"back"
 	"errors"
 	"fmt"
-	"strings"
+	// "strings"
 	"log"
 	"net/http"
 	"strconv"
@@ -112,15 +112,14 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		dataUser = DataUser{Cookis: cookie.Value}
 		fmt.Println(dataUser)
 	}
-	if r.Method == "POST"{
-		effect := r.FormValue("effect")
-		postEffect := strings.Split(effect, ",")
-		
-		BDDerr := AddLikeAndDislike(postEffect[0], /*inséré l'id du user qui effectue l'ation*/,postEffect[1])
-		if BDDerr != nil {
-			http.Error(w, "Error 500" BDDerr)
-		}
-	}
+	// if r.Method == "POST"{
+	// 	effect := r.FormValue("effect")
+	// 	postEffect := strings.Split(effect, ",")
+	// 	BDDerr := AddLikeAndDislike(postEffect[0], /*inséré l'id du user qui effectue l'ation*/,postEffect[1])
+	// 	if BDDerr != nil {
+	// 		http.Error(w, "Error 500" BDDerr)
+	// 	}
+	// }
 	fmt.Println(posts)
 	err := home.Execute(w, posts)
 	if err != nil {
@@ -181,6 +180,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		//fmt.Println(prenom, nom, email, pseudo, password, age)
 		bdderr := back.AddUser(id.String(), age, prenom, nom, email, password, pseudo)
 		if bdderr != nil {
+			fmt.Println(bdderr)
 		} else {
 			cookie := http.Cookie{
 				Name:     "uuid",
