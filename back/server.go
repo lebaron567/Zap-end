@@ -114,6 +114,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
 		input := r.FormValue("effect")
 		tmp := strings.Split(input, ",")
+		fmt.Println(tmp)
 		post_id, err := strconv.Atoi(tmp[0])
 		if err != nil{
 			log.Fatal(err)
@@ -121,7 +122,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		user_id := back.GetIDUserFromUUID(dataUser.Cookis)
 		BDDerr := back.AddLikeAndDislike(post_id, user_id , tmp[1])
 		if BDDerr != nil {
-			http.Error(w, "Error 500", http.StatusInternalServerError)
+			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
 		}
 	}
 	fmt.Println(posts)

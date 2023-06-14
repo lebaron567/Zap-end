@@ -37,32 +37,32 @@ func InitBDD() {
 		"lastname_user"			VARCHAR(30) NOT NULL,
 		"email_user"			VARCHAR(50) NOT NULL UNIQUE,
 		"password_hashed_user"	VARCHAR(45) NOT NULL,
-		"pseudo_user"			ARCHAR(20) NOT NULL UNIQUE,
-		PRIMARY KEY("id_user" AUTOINCREMENT)
+		"pseudo_user"			VARCHAR(20) NOT NULL UNIQUE,
+		PRIMARY KEY("id_user" 	AUTOINCREMENT)
 		
 	);
 	CREATE TABLE IF NOT EXISTS "post" (
-		"id_post"			INTEGER NOT NULL UNIQUE,
-		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
-		"title_post" 		VARCHAR(50) NOT NULL,
-		"content_post" 		LONGTEXT NOT NULL,
-		PRIMARY KEY("id_post" AUTOINCREMENT)
+		"id_post"				INTEGER NOT NULL UNIQUE,
+		"id_user" 		 		INTEGER NOT NULL REFERENCES user(id_user),
+		"title_post" 			VARCHAR(50) NOT NULL,
+		"content_post" 			LONGTEXT NOT NULL,
+		PRIMARY KEY("id_post" 	AUTOINCREMENT)
 
 	);
 
 	CREATE TABLE IF NOT EXISTS "comment" (
-		"id_comment"	INTEGER NOT NULL UNIQUE,
-		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
-		"id_user"  INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
+		"id_comment"		INTEGER NOT NULL UNIQUE,
+		"id_post"  			INTEGER NOT NULL REFERENCES post(id_post),
+		"id_user"  			INTEGER NOT NULL REFERENCES user(id_user),
 		"content_comment" 	LONGTEXT NOT NULL,
 		PRIMARY KEY("id_comment" AUTOINCREMENT)
 	);
 
 	CREATE TABLE IF NOT EXISTS "like" (
 		"id_like"	INTEGER NOT NULL UNIQUE,
-		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
-		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
-		"effet"   VARCHAR(1), 
+		"id_post"  	INTEGER NOT NULL  REFERENCES post(id_post),
+		"id_user"	INTEGER NOT NULL REFERENCES user(id_user),
+		"effect"   	VARCHAR(1), 
 		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
 	`
@@ -220,12 +220,12 @@ func AddPost(id_user int, title_post string, content_post string) error {
 func AddLikeAndDislike(id_post int, id_user int,  effect string) error {
 	database := OpenBDD()
 
-	statement, BDDerr := database.Prepare(`INSERT INTO like(id_post, title_user, effect) VALUES(?,?,?)`)
+	statement, BDDerr := database.Prepare(`INSERT INTO like(id_post, id_user, effect) VALUES(?,?,?)`)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
 	}
-	_, BDDerr = statement.Exec(id_post, id_user, effect)
+	_, BDDerr = statement.Exec(id_post+1, id_user, effect)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
