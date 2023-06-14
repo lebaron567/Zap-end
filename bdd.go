@@ -30,13 +30,13 @@ func InitBDD() {
 	defer database.Close()
 	tmp := `
 	CREATE TABLE IF NOT EXISTS "user" (
-		"id_user"					INTEGER NOT NULL UNIQUE,
+		"id_user"				INTEGER NOT NULL UNIQUE,
 		"age"					INTEGER NOT NULL,
 		"firstname_user"		VARCHAR(20) NOT NULL,
 		"lastname_user"			VARCHAR(30) NOT NULL,
 		"email_user"			VARCHAR(50) NOT NULL UNIQUE,
 		"password_hashed_user"	VARCHAR(45) NOT NULL,
-		"pseudo_user"			ARCHAR(20) NOT NULL UNIQUE,
+		"pseudo_user"			VARCHAR(20) NOT NULL UNIQUE,
 		PRIMARY KEY("id_user" AUTOINCREMENT)
 		
 	);

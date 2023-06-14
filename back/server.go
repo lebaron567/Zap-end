@@ -177,7 +177,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// affichier que le profile a bien été crée et rediger vers la page connexion
-	err := registration.Execute(w, ff)
+	err := registration.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
