@@ -65,6 +65,13 @@ func InitBDD() {
 		"effect"   	VARCHAR(1), 
 		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
+
+	CREATE TABLE IF NOT EXISTS "message" (
+		"id_message" INTEGER NOT NULL UNIQUE,
+	    "id_comment" INTEGER NOT NULL UNIQUE,
+		"id_user"    INTEGER NOT NULL REFERENCES user(id_user),
+		PRIMARY KEY("id_message"  AUTOINCREMENT)
+	);
 	`
 
 	_, bdderr := database.Exec(tmp)
