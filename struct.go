@@ -1,7 +1,7 @@
 package back
 
 type Post struct {
-	Id           int
+	Id_post           int
 	Id_user      int
 	Pseudo_user  string
 	Title_post   string
