@@ -66,7 +66,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/connexion", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -101,7 +101,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/connexion", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -212,7 +212,7 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/connexion", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -246,7 +246,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/connexion", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -268,7 +268,7 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/connexion", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
