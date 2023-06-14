@@ -61,7 +61,7 @@ func InitBDD() {
 	CREATE TABLE IF NOT EXISTS "like" (
 		"id_like"	INTEGER NOT NULL UNIQUE,
 		"id_post"  INTEGER NOT NULL UNIQUE REFERENCES post(id_post),
-		"id_user" 		 	INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
+		"id_user" INTEGER NOT NULL UNIQUE REFERENCES user(id_user),
 		"effet"   VARCHAR(1), 
 		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
