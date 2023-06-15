@@ -56,7 +56,7 @@ func main() {
 
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	fmt.Println("Serveur start at : http://localhost:8080/explorer/inviter")
+	fmt.Println("Serveur start at : http://localhost:8080/inviter")
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -66,7 +66,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -101,7 +101,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -212,7 +212,7 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -246,7 +246,7 @@ func Message(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -263,21 +263,48 @@ func Message(w http.ResponseWriter, r *http.Request) {
 }
 
 func Profil(w http.ResponseWriter, r *http.Request) {
-	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("uuid")
+	var user back.User
+	var userModif back.User
+	var data back.Profil
+	uuid, err2 := r.Cookie("uuid")
+	post := back.GetAlPostsUser(uuid.Value)
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
 		}
 		return
 	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
+		user = back.GetUser(uuid.Value)
 	}
-	err := profil.Execute(w, dataUser)
+	if r.Method == "POST"{
+		userModif = user
+		if strings.Contains(r.FormValue("Prenon"), " "){
+			userModif.Firstname_user = user.Firstname_user
+		}else{
+			userModif.Firstname_user = r.FormValue("Prenon")
+		}
+		if strings.Contains(r.FormValue("nom"), " "){
+			userModif.Lastname_user = user.Lastname_user
+		}else{
+			userModif.Lastname_user = r.FormValue("nom")
+		}
+		if strings.Contains(r.FormValue("pseudo"), " "){
+			userModif.Pseudo_user = user.Pseudo_user
+		}else{
+			userModif.Pseudo_user = r.FormValue("pseudo")
+		}
+		userModif.Age,_= strconv.Atoi(r.FormValue("age"))
+		if userModif.Firstname_user != "" && userModif.Lastname_user != "" && userModif.Pseudo_user != "" {
+			fmt.Println(back.UpdateUser(userModif))
+		}
+	}
+	data.Post = post
+	data.User = user
+	err := profil.Execute(w,  data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

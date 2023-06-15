@@ -20,8 +20,6 @@ func OpenBDD() *sql.DB {
 	return database
 }
 
-var users []user
-
 var comments []comment
 var likes []like
 
@@ -75,8 +73,10 @@ func InitBDD() {
 }
 
 func GetAllUsers() {
-	var user user
+	var users []User
+	var user User
 	var id int = 0
+	var uuid string = ""
 	var age int = 0
 	var firstname string = ""
 	var lastname string = ""
@@ -91,19 +91,52 @@ func GetAllUsers() {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&id, &age, &firstname, &lastname, &email, &password, &pseudo)
+		err = rows.Scan(&id, &uuid, &age, &firstname, &lastname, &email, &password, &pseudo)
 		if err != nil {
 			log.Fatal(err)
 		}
-		user.id = id
-		user.age = age
-		user.firstname_user = firstname
-		user.lastname_user = lastname
-		user.email_user = email
-		user.password_hashed_user = password
-		user.pseudo_user = pseudo
+		user.Id = id
+		user.Uusi = uuid
+		user.Age = age
+		user.Firstname_user = firstname
+		user.Lastname_user = lastname
+		user.Email_user = email
+		user.Password_hashed_user = password
+		user.Pseudo_user = pseudo
 		users = append(users, user)
 	}
+}
+
+func GetUser(uuid string) User {
+	var user User
+	var id int = 0
+	var age int = 0
+	var firstname string = ""
+	var lastname string = ""
+	var email string = ""
+	var password string = ""
+	var pseudo string = ""
+	database := OpenBDD()
+	rows, err := database.Query(`SELECT * FROM user WHERE uuid = '` + uuid + `';`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&id, &uuid, &age, &firstname, &lastname, &email, &password, &pseudo)
+		if err != nil {
+			log.Fatal(err)
+		}
+		user.Id = id
+		user.Uusi = uuid
+		user.Age = age
+		user.Firstname_user = firstname
+		user.Lastname_user = lastname
+		user.Email_user = email
+		user.Password_hashed_user = password
+		user.Pseudo_user = pseudo
+	}
+	return user
 }
 
 func GetAlPosts() []Post {
@@ -116,7 +149,7 @@ func GetAlPosts() []Post {
 	var pseudo_user string = ""
 	database := OpenBDD()
 	rows, err := database.Query("SELECT id_post, id_user, title_post, content_post, pseudo_user FROM post NATURAL JOIN user;")
-	if err != nil { 
+	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
@@ -135,6 +168,37 @@ func GetAlPosts() []Post {
 	}
 	return posts
 }
+
+func GetAlPostsUser(uuid string) []Post {
+	var post Post
+	var posts []Post
+	var id_post int = 0
+	var id_user int = 0
+	var title_post string = ""
+	var content_post string = ""
+	var pseudo_user string = ""
+	database := OpenBDD()
+	rows, err := database.Query(`SELECT id_post, id_user, title_post, content_post, pseudo_user FROM post NATURAL JOIN user WHERE uuid = "` + uuid + `" ;`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&id_post, &id_user, &title_post, &content_post, &pseudo_user)
+		if err != nil {
+			log.Fatal(err)
+		}
+		post.Id_post = id_post
+		post.Id_user = id_user
+		post.Title_post = title_post
+		post.Content_post = content_post
+		post.Pseudo_user = pseudo_user
+		fmt.Println(post)
+		posts = append(posts, post)
+	}
+	return posts
+}
+
 func GetAlComments() {
 	var comment comment
 	var id int
@@ -160,6 +224,7 @@ func GetAlComments() {
 
 	}
 }
+
 func GetAlLikes() {
 	var like like
 	var id int
@@ -217,7 +282,7 @@ func AddPost(id_user int, title_post string, content_post string) error {
 	return nil
 }
 
-func AddLikeAndDislike(id_post int, id_user int,  effect string) error {
+func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 	database := OpenBDD()
 
 	statement, BDDerr := database.Prepare(`INSERT INTO like(id_post, id_user, effect) VALUES(?,?,?)`)
@@ -233,10 +298,10 @@ func AddLikeAndDislike(id_post int, id_user int,  effect string) error {
 	defer database.Close()
 	return nil
 }
-func GetIDUserFromUUID(uuid string) int{
+func GetIDUserFromUUID(uuid string) int {
 	database := OpenBDD()
 	var id_user int
-	rows, err := database.Query(`SELECT id_user FROM user WHERE uuid = '`+uuid+`';`)
+	rows, err := database.Query(`SELECT id_user FROM user WHERE uuid = '` + uuid + `';`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -262,4 +327,21 @@ func CheckPasswordHash(password string, hash string) bool {
 	hashingErr := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	//fmt.Println(hashingErr)
 	return hashingErr == nil
+}
+
+func UpdateUser(user User  )  error{
+	database := OpenBDD()
+	statement, BDDerr := database.Prepare(`UPDATE user SET firstname_user = ?, lastname_user = ?, pseudo_user = ? WHERE id_user = ?;`)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	
+	_, BDDerr = statement.Exec(user.Firstname_user, user.Lastname_user, user.Pseudo_user, user.Id)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	defer database.Close()
+	return nil
 }
