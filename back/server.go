@@ -4,10 +4,10 @@ import (
 	"back"
 	"errors"
 	"fmt"
+	"strings"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"text/template"
 
 	"github.com/google/uuid"
@@ -49,7 +49,7 @@ func main() {
 	http.HandleFunc("/message", Message)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
-	http.HandleFunc("/inviter", Inviter)
+	http.HandleFunc("/explorer/inviter", Inviter)
 	id := uuid.New()
 	fmt.Println("Generated UUID:")
 	fmt.Println(id.String())
@@ -111,16 +111,18 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		dataUser = DataUser{Cookis: cookie.Value}
 		fmt.Println(dataUser)
 	}
-	if r.Method == "POST" {
+	if r.Method == "POST"{
 		input := r.FormValue("effect")
 		tmp := strings.Split(input, ",")
-		fmt.Println(tmp)
+		fmt.Println(tmp )
+		fmt.Println("le deuxieme est effect")
 		post_id, err := strconv.Atoi(tmp[0])
-		if err != nil {
+		if err != nil{
 			log.Fatal(err)
 		}
 		user_id := back.GetIDUserFromUUID(dataUser.Cookis)
-		BDDerr := back.AddLikeAndDislike(post_id, user_id, tmp[1])
+		fmt.Println(post_id, user_id, tmp[1])
+		BDDerr := back.AddLikeAndDislike(post_id, user_id , tmp[1])
 		if BDDerr != nil {
 			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
 		}
@@ -284,13 +286,22 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 }
 
 func Inviter(w http.ResponseWriter, r *http.Request) {
-	_, err2 := r.Cookie("uuid")
-	post := back.GetAlPosts()
-	if err2 == nil {
-		http.Redirect(w, r, "/home", http.StatusFound)
-	}
+	dataUser := DataUser{}
+	cookie, err2 := r.Cookie("uuid")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
 
-	err := invite.Execute(w, post)
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		dataUser = DataUser{Cookis: cookie.Value}
+		//http.Redirect(w, r, "/home", http.StatusFound)
+	}
+	err := invite.Execute(w, dataUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

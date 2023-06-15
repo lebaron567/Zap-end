@@ -219,13 +219,50 @@ func AddPost(id_user int, title_post string, content_post string) error {
 
 func AddLikeAndDislike(id_post int, id_user int,  effect string) error {
 	database := OpenBDD()
-
-	statement, BDDerr := database.Prepare(`INSERT INTO like(id_post, id_user, effect) VALUES(?,?,?)`)
+	var effect_like string
+	fmt.Print("je passe ici")
+	rows, err := database.Query(`SELECT effect FROM like WHERE id_user = `+strconv.Itoa(id_user)+` AND id_post = `+strconv.Itoa(id_post+1)+` ;`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&effect_like)
+		fmt.Println(effect_like)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if effect_like == effect{
+			return nil
+		}else if effect == "0" {
+			break
+		}
+		effect_tmp, err:= strconv.Atoi(effect)
+		if err != nil {
+			log.Fatal(err)
+		}
+		effect_tmp *= -1
+		effect = strconv.Itoa(effect_tmp)
+		update, BDDerr := database.Prepare(`UPDATE like SET effect = ? WHERE id_user = ? AND id_post = ?;`)
+		if BDDerr != nil {
+			defer database.Close()
+			return BDDerr
+		}
+		_, BDDerr = update.Exec(effect, id_user, id_post)
+		if BDDerr != nil {
+			defer database.Close()
+			return BDDerr
+		}
+		defer database.Close()
+		return nil
+	}
+	fmt.Println("et la je passe aussi")
+	add, BDDerr := database.Prepare(`INSERT INTO like(id_post, id_user, effect) VALUES(?,?,?)`)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
 	}
-	_, BDDerr = statement.Exec(id_post+1, id_user, effect)
+	_, BDDerr = add.Exec(id_post+1, id_user, effect)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
