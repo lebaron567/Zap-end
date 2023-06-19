@@ -57,14 +57,14 @@
         <div class="info" id="test">
             <form method="POST">
                 <p>pseudo: 
-                    <input type="text" value="{{.User.Pseudo_user}}" name="pseudo">
+                    <input type="text" value="{{.User.Pseudo_user}}" name="pseudo" required>
                 </p>
                 <p>prénom:
-                    <input type="text" value="{{.User.Firstname_user}}" name="Prenon"> </p>
+                    <input type="text" value="{{.User.Firstname_user}}" name="Prenon" required> </p>
                 <p>nom :
-                    <input type="text" value="{{.User.Lastname_user }}"name="nom"> </p>
+                    <input type="text" value="{{.User.Lastname_user }}"name="nom" required> </p>
                 <p>age: 
-                    <input type="text" value="{{.User.Age}}" name="age">
+                    <input type="text" value="{{.User.Age}}" name="age" required>
                 </p>
                 <button id="demo" onclick="fermer()">fermer</button>
                 <button type="submit"> modifer </button>
