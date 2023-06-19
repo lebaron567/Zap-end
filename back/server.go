@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -41,6 +42,8 @@ type MyData struct {
 
 func main() {
 	// back.AddLikeAndDislike(1, 1, 1)
+	now := time.Now()
+	fmt.Println("Current datetime:", now)
 	back.InitBDD()
 	http.HandleFunc("/post", Post)
 	http.HandleFunc("/home", Home)
@@ -77,17 +80,16 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		//fmt.Println(dataUser)
 	}
 	if r.Method == "POST" {
-
 		title := r.FormValue("title")
 		content := r.FormValue("content")
+		tag := r.FormValue("tag")
 		database := back.OpenBDD()
 		var id_user int
 		err := database.QueryRow(`SELECT id_user FROM user WHERE uuid ="` + dataUser.Cookis + `";`).Scan(&id_user)
 		if err != nil {
 			fmt.Print(err)
 		}
-		back.AddPost(id_user, title, content)
-		fmt.Print(title, content)
+		fmt.Println(back.AddPost(id_user, title, content, tag))
 	}
 	err := post.Execute(w, nil)
 	if err != nil {
@@ -109,12 +111,10 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
-		fmt.Println(dataUser)
 	}
 	if r.Method == "POST" {
 		input := r.FormValue("effect")
 		tmp := strings.Split(input, ",")
-		fmt.Println(tmp)
 		post_id, err := strconv.Atoi(tmp[0])
 		if err != nil {
 			log.Fatal(err)
@@ -125,7 +125,6 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
 		}
 	}
-	fmt.Println(posts)
 	err := home.Execute(w, posts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -280,31 +279,31 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 	} else {
 		user = back.GetUser(uuid.Value)
 	}
-	if r.Method == "POST"{
+	if r.Method == "POST" {
 		userModif = user
-		if strings.Contains(r.FormValue("Prenon"), " "){
+		if strings.Contains(r.FormValue("Prenon"), " ") {
 			userModif.Firstname_user = user.Firstname_user
-		}else{
+		} else {
 			userModif.Firstname_user = r.FormValue("Prenon")
 		}
-		if strings.Contains(r.FormValue("nom"), " "){
+		if strings.Contains(r.FormValue("nom"), " ") {
 			userModif.Lastname_user = user.Lastname_user
-		}else{
+		} else {
 			userModif.Lastname_user = r.FormValue("nom")
 		}
-		if strings.Contains(r.FormValue("pseudo"), " "){
+		if strings.Contains(r.FormValue("pseudo"), " ") {
 			userModif.Pseudo_user = user.Pseudo_user
-		}else{
+		} else {
 			userModif.Pseudo_user = r.FormValue("pseudo")
 		}
-		userModif.Age,_= strconv.Atoi(r.FormValue("age"))
+		userModif.Age, _ = strconv.Atoi(r.FormValue("age"))
 		if userModif.Firstname_user != "" && userModif.Lastname_user != "" && userModif.Pseudo_user != "" {
 			fmt.Println(back.UpdateUser(userModif))
 		}
 	}
 	data.Post = post
 	data.User = user
-	err := profil.Execute(w,  data)
+	err := profil.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

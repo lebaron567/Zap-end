@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
@@ -44,6 +46,7 @@ func InitBDD() {
 		"id_user" 		 		INTEGER NOT NULL REFERENCES user(id_user),
 		"title_post" 			VARCHAR(50) NOT NULL,
 		"content_post" 			LONGTEXT NOT NULL,
+		"date_post"             datetime NOT NULL,
 		PRIMARY KEY("id_post" 	AUTOINCREMENT)
 
 	);
@@ -70,6 +73,17 @@ func InitBDD() {
 		"id_recipient"      INTEGER NOT NULL REFERENCES user(id_user),
 		"content" 			TEXT NOT NULL,
 		PRIMARY KEY("id_message"  AUTOINCREMENT)
+	);
+	CREATE TABLE IF NOT EXISTS "categorie" (
+		"id_categorie" 		INTEGER NOT NULL UNIQUE,
+		"name_categorie"    VARCHAR(50) NOT NULL,
+		PRIMARY KEY("id_categorie"  AUTOINCREMENT)
+	);
+
+	CREATE TABLE IF NOT EXISTS "tag" (
+		"id_categorie"    	INTEGER NOT NULL REFERENCES categorie(id_categorie),
+		"id_post"    		INTEGER NOT NULL REFERENCES post(id_post),
+		PRIMARY KEY("id_categorie", "id_post")
 	);
 	`
 
@@ -274,14 +288,93 @@ func AddUser(id string, age int, firstname string, lastname string, email string
 	defer database.Close()
 	return nil
 }
-func AddPost(id_user int, title_post string, content_post string) error {
+func AddPost(id_user int, title_post string, content_post string, tag string) error {
 	database := OpenBDD()
-	statement, BDDerr := database.Prepare(`INSERT INTO post(id_user, title_post, content_post) VALUES(?,?,?)`)
+	now := time.Now().UTC()
+	statement, BDDerr := database.Prepare(`INSERT INTO post(id_user, title_post, content_post, date_post) VALUES(?,?,?,?)`)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
 	}
-	_, BDDerr = statement.Exec(id_user, title_post, content_post)
+	_, BDDerr = statement.Exec(id_user, title_post, content_post, now)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	defer database.Close()
+	AddTag(id_user,tag)
+	return nil
+}
+
+func GetLastPost(id_user int) int{
+	database := OpenBDD()
+	id_post := 0
+	rows, err := database.Query(`SELECT MAX(id_post) FROM post NATURAL JOIN user WHERE  id_user = `+strconv.Itoa(id_user))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&id_post)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}	
+	return id_post
+}
+
+func GetCategorie(categorie string) int{
+	database := OpenBDD()
+	id_categorie := 0
+	rows, err := database.Query(`SELECT id_categorie FROM categorie WHERE name_categorie = '` + categorie + `';`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&id_categorie)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}	
+	return id_categorie
+}
+
+
+
+func AddTag(id_user int, tags string) error {
+	listTag := strings.Split(tags, " ")
+	var id_categorie int = 0
+	for _, categorie := range listTag {
+		id_categorie = GetCategorie(categorie)
+		if id_categorie == 0{
+			AddCategorie(categorie)
+			id_categorie = GetCategorie(categorie)
+		}
+		database := OpenBDD()
+		statement, BDDerr := database.Prepare(`INSERT INTO tag(id_categorie, id_post) VALUES(?,?)`)
+		if BDDerr != nil {
+			defer database.Close()
+			return BDDerr
+		}
+		_, BDDerr = statement.Exec(id_categorie, GetLastPost(id_user))
+		if BDDerr != nil {
+			defer database.Close()
+			return BDDerr
+		}
+		defer database.Close()
+	}
+	return nil 
+}
+
+func AddCategorie(categorie string) error {
+	database := OpenBDD()
+	statement, BDDerr := database.Prepare(`INSERT INTO categorie(name_categorie) VALUES(?)`)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	_, BDDerr = statement.Exec(categorie)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
@@ -337,14 +430,14 @@ func CheckPasswordHash(password string, hash string) bool {
 	return hashingErr == nil
 }
 
-func UpdateUser(user User  )  error{
+func UpdateUser(user User) error {
 	database := OpenBDD()
 	statement, BDDerr := database.Prepare(`UPDATE user SET firstname_user = ?, lastname_user = ?, pseudo_user = ? WHERE id_user = ?;`)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
 	}
-	
+
 	_, BDDerr = statement.Exec(user.Firstname_user, user.Lastname_user, user.Pseudo_user, user.Id)
 	if BDDerr != nil {
 		defer database.Close()
