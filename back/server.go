@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -18,7 +19,6 @@ var home = template.Must(template.ParseFiles("template/home.html"))
 var registration = template.Must(template.ParseFiles("template/registration.html"))
 var connexion = template.Must(template.ParseFiles("template/connexion.html"))
 var explorer = template.Must(template.ParseFiles("template/Explorer.html"))
-var message = template.Must(template.ParseFiles("template/message.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
 var invite = template.Must(template.ParseFiles("template/invite.html"))
 var ff = 0
@@ -40,12 +40,13 @@ type MyData struct {
 }
 func main() {
 	// back.AddLikeAndDislike(1, 1, 1)
+	now := time.Now()
+	fmt.Println("Current datetime:", now)
 	back.InitBDD()
 	http.HandleFunc("/post", Post)
 	http.HandleFunc("/home", Home)
 	http.HandleFunc("/registration", Registration)
 	http.HandleFunc("/explorer", Explorer)
-	http.HandleFunc("/message", Message)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
 	http.HandleFunc("/explorer/inviter", Inviter)
@@ -55,7 +56,7 @@ func main() {
 
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	fmt.Println("Serveur start at : http://localhost:8080/explorer/inviter")
+	fmt.Println("Serveur start at : http://localhost:8080/inviter")
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -65,7 +66,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -76,18 +77,16 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		//fmt.Println(dataUser)
 	}
 	if r.Method == "POST" {
-
 		title := r.FormValue("title")
 		content := r.FormValue("content")
+		tag := r.FormValue("tag")
 		database := back.OpenBDD()
 		var id_user int
 		err := database.QueryRow(`SELECT id_user FROM user WHERE uuid ="` + dataUser.Cookis + `";`).Scan(&id_user)
 		if err != nil {
 			fmt.Print(err)
 		}
-		defer database.Close()
-		back.AddPost(id_user, title, content)
-		fmt.Print(title, content)
+		fmt.Println(back.AddPost(id_user, title, content, tag))
 	}
 	err := post.Execute(w, nil)
 	if err != nil {
@@ -101,7 +100,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -109,13 +108,10 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
-		fmt.Println(dataUser)
 	}
 	if r.Method == "POST"{
 		input := r.FormValue("effect")
 		tmp := strings.Split(input, ",")
-		fmt.Println(tmp )
-		fmt.Println("le deuxieme est effect")
 		post_id, err := strconv.Atoi(tmp[0])
 		if err != nil{
 			log.Fatal(err)
@@ -127,7 +123,6 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
 		}
 	}
-	fmt.Println(posts)
 	err := home.Execute(w, posts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -203,7 +198,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// affichier que le profile a bien été crée et rediger vers la page connexion
-	err := registration.Execute(w, ff)
+	err := registration.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -215,7 +210,7 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
@@ -229,58 +224,50 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-func Message(w http.ResponseWriter, r *http.Request) {
-	var data MyData
-	var data2 MyData
-	var datas []MyData
-	data.User = "User1"
-	data2.User = "User2"
-	data.Message = "voila un message"
-	data2.Message = "voila un 2e message"
-	datas = append(datas, data)
-	datas = append(datas, data2)
-	if r.Method == "POST" {
-		search := r.FormValue("search")
-		data.Message = r.FormValue("message")
-		fmt.Println(search, message)
-	}
-	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("uuid")
-	if err2 != nil {
-		switch {
-		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
-		default:
-			log.Println(err2)
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}
-		return
-	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
-		fmt.Println(dataUser)
-	}
-	err := message.Execute(w, datas)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
 
 func Profil(w http.ResponseWriter, r *http.Request) {
-	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("uuid")
+	var user back.User
+	var userModif back.User
+	var data back.Profil
+	uuid, err2 := r.Cookie("uuid")
+	post := back.GetAlPostsUser(uuid.Value)
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/explorer/inviter", http.StatusFound)
+			http.Redirect(w, r, "/inviter", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
 		}
 		return
 	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
+		user = back.GetUser(uuid.Value)
 	}
-	err := profil.Execute(w, dataUser)
+	if r.Method == "POST" {
+		userModif = user
+		if strings.Contains(r.FormValue("Prenon"), " ") {
+			userModif.Firstname_user = user.Firstname_user
+		} else {
+			userModif.Firstname_user = r.FormValue("Prenon")
+		}
+		if strings.Contains(r.FormValue("nom"), " ") {
+			userModif.Lastname_user = user.Lastname_user
+		} else {
+			userModif.Lastname_user = r.FormValue("nom")
+		}
+		if strings.Contains(r.FormValue("pseudo"), " ") {
+			userModif.Pseudo_user = user.Pseudo_user
+		} else {
+			userModif.Pseudo_user = r.FormValue("pseudo")
+		}
+		userModif.Age, _ = strconv.Atoi(r.FormValue("age"))
+		if userModif.Firstname_user != "" && userModif.Lastname_user != "" && userModif.Pseudo_user != "" {
+			fmt.Println(back.UpdateUser(userModif))
+		}
+	}
+	data.Post = post
+	data.User = user
+	err := profil.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

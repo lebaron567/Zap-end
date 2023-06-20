@@ -1,0 +1,12 @@
+.info{
+    background-color: white;
+    border: solid black;
+    display: none;
+    transition: 2s;
+    position:  absolute;
+    padding: 15px;
+}
+
+.info p {
+    margin: 10px;
+}

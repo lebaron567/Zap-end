@@ -18,12 +18,17 @@ type like struct {
 	id_post int
 	effet   bool
 }
-type user struct {
-	id                   int
-	age                  int
-	firstname_user       string
-	lastname_user        string
-	email_user           string
-	password_hashed_user string
-	pseudo_user          string
+type User struct {
+	Id                   int
+	Uusi				 string
+	Age                  int
+	Firstname_user       string
+	Lastname_user        string
+	Email_user           string
+	Password_hashed_user string
+	Pseudo_user          string
 }
+
+type Profil struct{ 
+	Post []Post 
+	User User }
