@@ -209,7 +209,6 @@ func GetAlPostsUser(uuid string) []Post {
 		post.Title_post = title_post
 		post.Content_post = content_post
 		post.Pseudo_user = pseudo_user
-		fmt.Println(post)
 		posts = append(posts, post)
 	}
 	return posts
@@ -298,13 +297,13 @@ func AddUser(id string, age int, firstname string, lastname string, email string
 }
 func AddPost(id_user int, title_post string, content_post string, tag string) error {
 	database := OpenBDD()
-	now := time.Now().UTC()
+	now := time.Now()
 	statement, BDDerr := database.Prepare(`INSERT INTO post(id_user, title_post, content_post, date_post) VALUES(?,?,?,?)`)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
 	}
-	_, BDDerr = statement.Exec(id_user, title_post, content_post, now)
+	_, BDDerr = statement.Exec(id_user, title_post, content_post, now.Format("2006-01-02 15:04:05"))
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
@@ -382,7 +381,7 @@ func AddCategorie(categorie string) error {
 		defer database.Close()
 		return BDDerr
 	}
-	_, BDDerr = statement.Exec(categorie)
+	_, BDDerr = statement.Exec( strings.ToLower(categorie))
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
@@ -500,5 +499,40 @@ func UpdateUser(user User) error {
 		return BDDerr
 	}
 	defer database.Close()
+	return nil
+}
+
+func SearchCategorie(categorie string) []Post {
+	id := GetCategorie(categorie)
+	fmt.Println(id)
+	if id !=0{
+		var post Post
+		var posts []Post
+		var id_post int = 0
+		var id_user int = 0
+		var title_post string = ""
+		var content_post string = ""
+		var pseudo_user string = ""
+		database := OpenBDD()
+		rows, err := database.Query("SELECT id_post, id_user, title_post, content_post, pseudo_user FROM user NATURAL JOIN post NATURAL JOIN tag WHERE id_categorie ="+ strconv.Itoa(id)+" ;")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			err = rows.Scan(&id_post, &id_user, &title_post, &content_post, &pseudo_user)
+			if err != nil {
+				log.Fatal(err)
+			}
+			post.Id_post = id_post
+			post.Id_user = id_user
+			post.Title_post = title_post
+			post.Content_post = content_post
+			post.Pseudo_user = pseudo_user
+			posts = append(posts, post)
+		}
+		fmt.Println(posts)
+		return posts
+	}
 	return nil
 }

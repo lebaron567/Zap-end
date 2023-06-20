@@ -81,7 +81,7 @@ p{
 }
 
 .post {
-    background-color: #eff5f5;
+    background-color: #ffffff;
     border: solid;
     text-align: center;
     box-sizing: content-box;
@@ -107,8 +107,7 @@ p{
     border-radius: 20px;
 
     display: flex;
-    width: 550px;
-    
+    width: 550px; 
 }
 body .create-post form textarea{
     border-radius: 10px;
@@ -122,5 +121,13 @@ body .create-post form textarea{
 .box{
     position: absolute;
     left: 337px;
+}
+
+.display_pseudo{
+    margin-bottom: 5px;
+}
+
+.add_comment{
+    display: none;
 }
 

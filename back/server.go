@@ -113,15 +113,17 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST"{
 		input := r.FormValue("effect")
 		tmp := strings.Split(input, ",")
+		if tmp[0] != ""{
+			fmt.Println(tmp[0])
 		post_id, err := strconv.Atoi(tmp[0])
-		if err != nil{
-			log.Fatal(err)
-		}
-		user_id := back.GetIDUserFromUUID(dataUser.Cookis)
-		fmt.Println(post_id, user_id, tmp[1])
-		BDDerr := back.AddLikeAndDislike(post_id, user_id , tmp[1])
-		if BDDerr != nil {
-			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
+			if err != nil {
+				log.Fatal(err)
+			}
+			user_id := back.GetIDUserFromUUID(dataUser.Cookis)
+			BDDerr := back.AddLikeAndDislike(post_id, user_id, tmp[1])
+			if BDDerr != nil {
+				http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
+			}
 		}
 	}
 
@@ -208,6 +210,7 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
+	posts := back.GetAlPosts()
 	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
@@ -221,7 +224,32 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
 	}
-	err := explorer.Execute(w, dataUser)
+	if r.Method == "GET"{
+		fmt.Println("dddd")
+		input := r.FormValue("search")
+		postsTrier := back.SearchCategorie(strings.ToLower(input))
+		if postsTrier!=nil{
+			posts = postsTrier
+		}
+		if input == ""{
+			posts = back.GetAlPosts()
+		}
+	}
+	if r.Method == "POST" {
+		input := r.FormValue("effect")
+		tmp := strings.Split(input, ",")
+		post_id , err := strconv.Atoi(tmp[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		user_id := back.GetIDUserFromUUID(dataUser.Cookis)
+		BDDerr := back.AddLikeAndDislike(post_id, user_id, tmp[1])
+		if BDDerr != nil {
+			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
+		}
+
+	}
+	err := explorer.Execute(w, posts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
