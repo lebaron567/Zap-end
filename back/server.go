@@ -4,10 +4,10 @@ import (
 	"back"
 	"errors"
 	"fmt"
+	"strings"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"text/template"
 	"time"
 
@@ -38,7 +38,6 @@ type MyData struct {
 	Message string
 	NBLike int
 }
-
 func main() {
 	// back.AddLikeAndDislike(1, 1, 1)
 	now := time.Now()
@@ -50,7 +49,7 @@ func main() {
 	http.HandleFunc("/explorer", Explorer)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
-	http.HandleFunc("/inviter", Inviter)
+	http.HandleFunc("/explorer/inviter", Inviter)
 	id := uuid.New()
 	fmt.Println("Generated UUID:")
 	fmt.Println(id.String())
@@ -96,7 +95,8 @@ func Post(w http.ResponseWriter, r *http.Request) {
 }
 func Home(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	posts := back.GetAlPosts()
+	posts := back.GetPosts()
+	fmt.Println(posts)
 	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
@@ -110,7 +110,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	} else {
 		dataUser = DataUser{Cookis: cookie.Value}
 	}
-	if r.Method == "POST" {
+	if r.Method == "POST"{
 		input := r.FormValue("effect")
 		tmp := strings.Split(input, ",")
 		if tmp[0] != ""{
@@ -126,6 +126,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
 	err := home.Execute(w, posts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -144,6 +145,7 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Print(err)
 		}
+		defer database.Close()
 		if back.CheckPasswordHash(password, password_hashed_user) {
 			err = database.QueryRow(`SELECT uuid FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&uuid)
 			if err != nil {
@@ -302,13 +304,22 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 }
 
 func Inviter(w http.ResponseWriter, r *http.Request) {
-	_, err2 := r.Cookie("uuid")
-	post := back.GetAlPosts()
-	if err2 == nil {
-		http.Redirect(w, r, "/home", http.StatusFound)
-	}
+	dataUser := DataUser{}
+	cookie, err2 := r.Cookie("uuid")
+	if err2 != nil {
+		switch {
+		case errors.Is(err2, http.ErrNoCookie):
 
-	err := invite.Execute(w, post)
+		default:
+			log.Println(err2)
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}
+		return
+	} else {
+		dataUser = DataUser{Cookis: cookie.Value}
+		//http.Redirect(w, r, "/home", http.StatusFound)
+	}
+	err := invite.Execute(w, dataUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
