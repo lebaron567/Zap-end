@@ -179,6 +179,7 @@ func GetAlPosts() []Post {
 		post.Title_post = title_post
 		post.Content_post = content_post
 		post.Pseudo_user = pseudo_user
+		// fmt.Println(post)
 		posts = append(posts, post)
 	}
 	return posts
@@ -454,7 +455,7 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 }
 func GetIDUserFromUUID(uuid string) int {
 	database := OpenBDD()
-	var id_user int
+	var id_user int = 0
 	rows, err := database.Query(`SELECT id_user FROM user WHERE uuid = '` + uuid + `';`)
 	if err != nil {
 		log.Fatal(err)

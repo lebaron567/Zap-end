@@ -49,7 +49,8 @@ func main() {
 	http.HandleFunc("/explorer", Explorer)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
-	http.HandleFunc("/explorer/inviter", Inviter)
+	http.HandleFunc("/inviter", Inviter)
+	http.HandleFunc("/delete-cookie", deleteCookieHandler)
 	id := uuid.New()
 	fmt.Println("Generated UUID:")
 	fmt.Println(id.String())
@@ -61,28 +62,14 @@ func main() {
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
-	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("uuid")
-	if err2 != nil {
-		switch {
-		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/inviter", http.StatusFound)
-		default:
-			log.Println(err2)
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}
-		return
-	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
-		//fmt.Println(dataUser)
-	}
+	cookie := chekCookis(w,r)
 	if r.Method == "POST" {
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		tag := r.FormValue("tag")
 		database := back.OpenBDD()
 		var id_user int
-		err := database.QueryRow(`SELECT id_user FROM user WHERE uuid ="` + dataUser.Cookis + `";`).Scan(&id_user)
+		err := database.QueryRow(`SELECT id_user FROM user WHERE uuid ="` + cookie + `";`).Scan(&id_user)
 		if err != nil {
 			fmt.Print(err)
 		}
@@ -93,23 +80,10 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
 func Home(w http.ResponseWriter, r *http.Request) {
-	dataUser := DataUser{}
 	posts := back.GetPosts()
-	fmt.Println(posts)
-	cookie, err2 := r.Cookie("uuid")
-	if err2 != nil {
-		switch {
-		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/inviter", http.StatusFound)
-		default:
-			log.Println(err2)
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}
-		return
-	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
-	}
+	cookie := chekCookis(w,r)
 	if r.Method == "POST"{
 		input := r.FormValue("effect")
 		tmp := strings.Split(input, ",")
@@ -119,7 +93,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			user_id := back.GetIDUserFromUUID(dataUser.Cookis)
+			user_id := back.GetIDUserFromUUID(cookie)
 			BDDerr := back.AddLikeAndDislike(post_id, user_id, tmp[1])
 			if BDDerr != nil {
 				http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
@@ -209,21 +183,8 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
-	dataUser := DataUser{}
 	posts := back.GetAlPosts()
-	cookie, err2 := r.Cookie("uuid")
-	if err2 != nil {
-		switch {
-		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/inviter", http.StatusFound)
-		default:
-			log.Println(err2)
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}
-		return
-	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
-	}
+	cookie := chekCookis(w,r)
 	if r.Method == "GET"{
 		fmt.Println("dddd")
 		input := r.FormValue("search")
@@ -242,7 +203,7 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		user_id := back.GetIDUserFromUUID(dataUser.Cookis)
+		user_id := back.GetIDUserFromUUID(cookie)
 		BDDerr := back.AddLikeAndDislike(post_id, user_id, tmp[1])
 		if BDDerr != nil {
 			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
@@ -259,20 +220,9 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 	var user back.User
 	var userModif back.User
 	var data back.Profil
-	uuid, err2 := r.Cookie("uuid")
-	post := back.GetAlPostsUser(uuid.Value)
-	if err2 != nil {
-		switch {
-		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/inviter", http.StatusFound)
-		default:
-			log.Println(err2)
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}
-		return
-	} else {
-		user = back.GetUser(uuid.Value)
-	}
+	uuid := chekCookis(w,r)
+	user = back.GetUser(uuid)
+	post := back.GetAlPostsUser(uuid)
 	if r.Method == "POST" {
 		userModif = user
 		if strings.Contains(r.FormValue("Prenon"), " ") {
@@ -304,23 +254,42 @@ func Profil(w http.ResponseWriter, r *http.Request) {
 }
 
 func Inviter(w http.ResponseWriter, r *http.Request) {
-	dataUser := DataUser{}
+	_, err2 := r.Cookie("uuid")
+	post := back.GetAlPosts()
+	if err2 == nil {
+		http.Redirect(w, r, "/home", http.StatusFound)
+	}
+
+	err := invite.Execute(w, post)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func deleteCookieHandler(w http.ResponseWriter, r *http.Request) {
+	cookie := &http.Cookie{
+		Name:    "uuid",
+		Value:   "",
+		Expires: time.Unix(0, 0), // Définit la date d'expiration du cookie dans le passé
+	}
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/inviter", http.StatusFound)
+}
+
+func chekCookis(w http.ResponseWriter, r *http.Request) string{
 	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
 		case errors.Is(err2, http.ErrNoCookie):
-
+			http.Redirect(w, r, "/delete-cookie", http.StatusFound)
 		default:
 			log.Println(err2)
 			http.Error(w, "server error", http.StatusInternalServerError)
 		}
-		return
-	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
-		//http.Redirect(w, r, "/home", http.StatusFound)
+		return ""
 	}
-	err := invite.Execute(w, dataUser)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if back.GetIDUserFromUUID(cookie.Value) == 0{
+		http.Redirect(w, r, "/delete-cookie", http.StatusFound)
 	}
+	return cookie.Value
 }
