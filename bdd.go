@@ -62,7 +62,7 @@ func InitBDD() {
 		"id_like"	INTEGER NOT NULL UNIQUE,
 		"id_post"  	INTEGER NOT NULL  REFERENCES post(id_post),
 		"id_user"	INTEGER NOT NULL REFERENCES user(id_user),
-		"effect"   	VARCHAR(1), 
+		"effect"   	VARCHAR(2), 
 		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
 	`
@@ -89,6 +89,7 @@ func GetAllUsers() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer database.Close()
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&id, &age, &firstname, &lastname, &email, &password, &pseudo)
@@ -119,6 +120,7 @@ func GetAlPosts() []Post {
 	if err != nil { 
 		log.Fatal(err)
 	}
+	defer database.Close()
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&id_post, &id_user, &title_post, &content_post, &pseudo_user)
@@ -146,6 +148,7 @@ func GetAlComments() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer database.Close()
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&id, &id_post, &id_user, &content_comment)
@@ -170,6 +173,7 @@ func GetAlLikes() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer database.Close()
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&id, &id_post, &effect)
@@ -181,6 +185,7 @@ func GetAlLikes() {
 		like.effet = effect
 		likes = append(likes, like)
 	}
+	defer database.Close()
 }
 
 func AddUser(id string, age int, firstname string, lastname string, email string, password string, pseudo string) error {
@@ -219,12 +224,13 @@ func AddPost(id_user int, title_post string, content_post string) error {
 
 func AddLikeAndDislike(id_post int, id_user int,  effect string) error {
 	database := OpenBDD()
+	var need_update bool = false
 	var effect_like string
-	fmt.Print("je passe ici")
 	rows, err := database.Query(`SELECT effect FROM like WHERE id_user = `+strconv.Itoa(id_user)+` AND id_post = `+strconv.Itoa(id_post+1)+` ;`)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer database.Close()
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&effect_like)
@@ -233,16 +239,25 @@ func AddLikeAndDislike(id_post int, id_user int,  effect string) error {
 			log.Fatal(err)
 		}
 		if effect_like == effect{
+			defer database.Close()
 			return nil
 		}else if effect == "0" {
+			defer database.Close()
 			break
-		}
-		effect_tmp, err:= strconv.Atoi(effect)
+		}	
+			need_update=true
+	}
+	if need_update==true{
+		effect_tmp, err:= strconv.Atoi(effect_like)
 		if err != nil {
+			defer database.Close()
 			log.Fatal(err)
 		}
+		fmt.Println(effect_tmp)
 		effect_tmp *= -1
 		effect = strconv.Itoa(effect_tmp)
+		fmt.Println(effect)
+		database := OpenBDD()
 		update, BDDerr := database.Prepare(`UPDATE like SET effect = ? WHERE id_user = ? AND id_post = ?;`)
 		if BDDerr != nil {
 			defer database.Close()
@@ -277,6 +292,7 @@ func GetIDUserFromUUID(uuid string) int{
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer database.Close()
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&id_user)

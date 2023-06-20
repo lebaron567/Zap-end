@@ -38,7 +38,6 @@ type MyData struct {
 	Message string
 	NBLike int
 }
-
 func main() {
 	// back.AddLikeAndDislike(1, 1, 1)
 	back.InitBDD()
@@ -86,6 +85,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Print(err)
 		}
+		defer database.Close()
 		back.AddPost(id_user, title, content)
 		fmt.Print(title, content)
 	}
@@ -146,6 +146,7 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Print(err)
 		}
+		defer database.Close()
 		if back.CheckPasswordHash(password, password_hashed_user) {
 			err = database.QueryRow(`SELECT uuid FROM user WHERE pseudo_user = "` + pseudo + `";`).Scan(&uuid)
 			if err != nil {
