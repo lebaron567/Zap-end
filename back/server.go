@@ -19,7 +19,6 @@ var home = template.Must(template.ParseFiles("template/home.html"))
 var registration = template.Must(template.ParseFiles("template/registration.html"))
 var connexion = template.Must(template.ParseFiles("template/connexion.html"))
 var explorer = template.Must(template.ParseFiles("template/Explorer.html"))
-var message = template.Must(template.ParseFiles("template/message.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
 var invite = template.Must(template.ParseFiles("template/invite.html"))
 var ff = 0
@@ -49,7 +48,6 @@ func main() {
 	http.HandleFunc("/home", Home)
 	http.HandleFunc("/registration", Registration)
 	http.HandleFunc("/explorer", Explorer)
-	http.HandleFunc("/message", Message)
 	http.HandleFunc("/profil", Profil)
 	http.HandleFunc("/connexion", Connexion)
 	http.HandleFunc("/inviter", Inviter)
@@ -221,41 +219,6 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 		dataUser = DataUser{Cookis: cookie.Value}
 	}
 	err := explorer.Execute(w, dataUser)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-func Message(w http.ResponseWriter, r *http.Request) {
-	var data MyData
-	var data2 MyData
-	var datas []MyData
-	data.User = "User1"
-	data2.User = "User2"
-	data.Message = "voila un message"
-	data2.Message = "voila un 2e message"
-	datas = append(datas, data)
-	datas = append(datas, data2)
-	if r.Method == "POST" {
-		search := r.FormValue("search")
-		data.Message = r.FormValue("message")
-		fmt.Println(search, message)
-	}
-	dataUser := DataUser{}
-	cookie, err2 := r.Cookie("uuid")
-	if err2 != nil {
-		switch {
-		case errors.Is(err2, http.ErrNoCookie):
-			http.Redirect(w, r, "/inviter", http.StatusFound)
-		default:
-			log.Println(err2)
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}
-		return
-	} else {
-		dataUser = DataUser{Cookis: cookie.Value}
-		fmt.Println(dataUser)
-	}
-	err := message.Execute(w, datas)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

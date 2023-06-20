@@ -67,13 +67,6 @@ func InitBDD() {
 		PRIMARY KEY("id_like" AUTOINCREMENT)
 	);
 
-	CREATE TABLE IF NOT EXISTS "message" (
-		"id_message" 		INTEGER NOT NULL UNIQUE,
-		"id_sender"    		INTEGER NOT NULL REFERENCES user(id_user),
-		"id_recipient"      INTEGER NOT NULL REFERENCES user(id_user),
-		"content" 			TEXT NOT NULL,
-		PRIMARY KEY("id_message"  AUTOINCREMENT)
-	);
 	CREATE TABLE IF NOT EXISTS "categorie" (
 		"id_categorie" 		INTEGER NOT NULL UNIQUE,
 		"name_categorie"    VARCHAR(50) NOT NULL,
