@@ -7,7 +7,7 @@
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/style.css'>
     <title>Zap'end</title>
     <link rel="icon" type="image/png" href="/assets/img/logo.png"/>
-    <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/explorer.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/message.css'>
 </head>
 <body>
     <div class="menu">
@@ -35,29 +35,23 @@
                     <button type="submit" class="bounton-nav"> post </button>
             </form>
             </div>
-            <!-- <form action="/home">
-                <button type="submit" class="bounton-nav"> notifi </button>
-            </form> -->
         </div>
     </div>
     <div class="box">
-        <form class="search-form" method="get">
-            <input type="text" placeholder="Recherche" class="search-input" name="search">
+        <form class="search-form"  method="POST">
+            <input type="text" name="search" placeholder="Recherche" class="search-input">
             <button type="submit" class="search-button">Rechercher</button>
         </form>
-        {{ range $index, $post := . }}
-        <div class="post"> 
-            <h1>{{.Pseudo_user}}</h1>
-            <p>{{.Title_post}}</p>
-            <p>{{.Content_post}}</p>
-
-            <form method="POST">
-                <button type="submit" name="effect" value="{{$index}},1">like</button>
-                <button type="submit" name="effect" value="{{$index}},-1">dislike</button>
-            </form>
-           
-        </div>
-            {{ end }}
+        <form class="input-container"  method="POST">
+            <input type="text" name="message" class="message-input" placeholder="Entrez votre message">
+            <button class="send-button">Envoyer</button>
+        </form>
+        {{range .}}
+    <div class="message">
+        {{.User}}
+        {{.Message}}
     </div>
+    {{end}}
+    </div>    
 </body>
 </html>

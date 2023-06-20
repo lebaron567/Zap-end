@@ -15,7 +15,7 @@
             <div class="home" id="box_boutonNav">
             <img src="/assets/img/acuille.png" class="imgHome">
                 <form action="/home">
-                    <button type="submit" class="bounton-nav"> Accuille </button>
+                    <button type="submit" class="bounton-nav"> Accueil </button>
                 </form>
             </div>
             <div class="explorer" id="box_boutonNav">
@@ -39,13 +39,13 @@
     </div>
     
     <div class="box">
-        <div class="search-form">
+        <!-- <div class="search-form">
             <input type="text" placeholder="Recherche" class="search-input">
             <button type="submit" class="search-button">Rechercher</button>
-        </div>
+        </div> -->
         {{ range $index, $post := . }}
         <div class="post"> 
-            <p>{{.Pseudo_user}}</p>
+            <p class="display_pseudo">{{.Pseudo_user}}</p>
             <p>{{.Title_post}}</p>
             <hr>
             <p>{{.Content_post}}</p>
@@ -53,18 +53,26 @@
                 <button type="submit" name="effect" value="{{$index}},1">like</button>
                 <button type="submit" name="effect" value="{{$index}},-1">dislike</button>
             </form>
-           
+            <button id="demo" onclick="openForm('create_coment_{{$index}}' )">commanter </button>
+            <div id="create_coment_{{$index}}" class="add_comment">
+                <form method="POST" id="add_comment">
+                    <textarea name="content" id="content"></textarea> 
+                    <button type="submit"> comment </button>
+                    <input name="id" value="{{$index}}"  style="display: none;">
+                </form> 
+                <button id="demo" onclick="fermer('create_coment_{{$index}}')">ferme </button>
+            </div>
         </div>
             {{ end }}
     </div>
-    <!-- <div class=" post">
-        <p>{{.User}}</p>
-        <hr>
-        <div class="message"> 
-         <h1>{{.Message}}</h1>
-        </div>
-        <hr>
-        <p>like: {{.NBLike}}</p>   
-    </div> -->
+    <script>
+        function fermer(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function openForm(id) {
+            document.getElementById(id).style.display = "block";
+        }
+    </script>
 </body>
 </html>
