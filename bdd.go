@@ -22,7 +22,6 @@ func OpenBDD() *sql.DB {
 	return database
 }
 
-var comments []comment
 var likes []like
 
 func InitBDD() {
@@ -180,7 +179,7 @@ func GetAlPosts() []Post {
 		post.Title_post = title_post
 		post.Content_post = content_post
 		post.Pseudo_user = pseudo_user
-		fmt.Println(post)
+		// fmt.Println(post)
 		posts = append(posts, post)
 	}
 	return posts
@@ -216,33 +215,44 @@ func GetAlPostsUser(uuid string) []Post {
 	return posts
 }
 
-func GetAlComments() {
-	var comment comment
-	var id int
+func GetAlComments()[]Comment {
+	var comment Comment
 	var id_post int
-	var id_user int
+	var pseudo_user string
 	var content_comment string
+	var comments []Comment 
 	database := OpenBDD()
-	rows, err := database.Query("SELECT * FROM comment")
+	rows, err := database.Query("SELECT id_post, content_comment, pseudo_user FROM comment NATURAL JOIN user ORDER BY id_post;")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer database.Close()
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&id, &id_post, &id_user, &content_comment)
+		err = rows.Scan(&id_post, &content_comment, &pseudo_user)
 		if err != nil {
 			log.Fatal(err)
 		}
-		comment.id = id
-		comment.id_post = id_post
-		comment.id_user = id_user
-		comment.content_comment = content_comment
+		comment.Id_post = id_post
+		comment.Content_comment = content_comment
+		comment.Writer_comment = pseudo_user
 		comments = append(comments, comment)
 
 	}
+	return comments
 }
-
+func GetPosts()[]Post{
+	posts := GetAlPosts()
+	comments := GetAlComments()
+	for index_post, _  := range posts{
+		for index_comment, _ := range comments {
+			if comments[index_comment].Id_post == index_post+1{
+				posts[index_post].Comments = append(posts[index_post].Comments, comments[index_comment])
+			}
+		}
+	}
+	return posts
+}
 func GetAlLikes() {
 	var like like
 	var id int

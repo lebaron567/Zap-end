@@ -95,7 +95,8 @@ func Post(w http.ResponseWriter, r *http.Request) {
 }
 func Home(w http.ResponseWriter, r *http.Request) {
 	dataUser := DataUser{}
-	posts := back.GetAlPosts()
+	posts := back.GetPosts()
+	fmt.Println(posts)
 	cookie, err2 := r.Cookie("uuid")
 	if err2 != nil {
 		switch {
@@ -123,6 +124,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
 		}
 	}
+
 	err := home.Execute(w, posts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -53,6 +53,14 @@
                 <button type="submit" name="effect" value="{{$index}},1">like</button>
                 <button type="submit" name="effect" value="{{$index}},-1">dislike</button>
             </form>
+            
+            {{ range $index_comment, $comment := .Comments }}
+            <div class="comment"></div>
+            <p>{{$comment.Writer_comment}}</p>
+            <p>{{$comment.Content_comment}}</p>
+            <br>
+            </div>
+           {{ end }}
            
         </div>
             {{ end }}

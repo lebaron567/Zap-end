@@ -1,17 +1,17 @@
 package back
 
 type Post struct {
-	Id_post           int
+	Id_post      int
 	Id_user      int
 	Pseudo_user  string
 	Title_post   string
 	Content_post string
+	Comments 	 []Comment
 }
-type comment struct {
-	id              int
-	id_post         int
-	id_user         int
-	content_comment string
+type Comment struct {
+	Id_post 		int
+	Writer_comment 	string
+	Content_comment string
 }
 type like struct {
 	id      int
@@ -31,4 +31,5 @@ type User struct {
 
 type Profil struct{ 
 	Post []Post 
-	User User }
+	User User 
+}
