@@ -54,13 +54,7 @@
                 <button type="submit" name="effect" value="{{$index}},-1">dislike</button>
             </form>
             
-            {{ range $index_comment, $comment := .Comments }}
-            <div class="comment"></div>
-            <p>{{$comment.Writer_comment}}</p>
-            <p>{{$comment.Content_comment}}</p>
-            <br>
-            </div>
-           {{ end }}
+            
            
             <button id="demo" onclick="openForm('create_coment_{{$index}}' )">commanter </button>
             <div id="create_coment_{{$index}}" class="add_comment">
@@ -71,8 +65,14 @@
                 </form> 
                 <button id="demo" onclick="fermer('create_coment_{{$index}}')">ferme </button>
             </div>
-        </div>
-            {{ end }}
+            {{ range $index_comment, $comment := .Comments }}
+                <div class="comment">
+                <p>{{$comment.Writer_comment}}</p>
+                <p>{{$comment.Content_comment}}</p>
+                <br>
+                </div>
+           {{ end }}
+        {{ end }}
     </div>
     <script>
         function fermer(id) {
