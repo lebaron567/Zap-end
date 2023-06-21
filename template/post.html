@@ -33,16 +33,21 @@
                     <button type="submit" class="bounton-nav"> post </button>
             </form>
             </div>
+            <div class="deco" id="box_boutonNav">
+                <form action="/delete-cookie">
+                    <button type="submit" class="bounton-nav"> déconnexion </button>
+                </form>
+            </div>
         </div>
      
     </div>
     <div class="box">
         <div class="create-post">
             <form method="POST">
-                <input type="text" name="title" placeholder="Titre" id="title">
-                <textarea name="content" id="content"></textarea>
+                <input type="text" name="title" placeholder="Titre" id="title" autocomplete="off">
+                <textarea name="content" id="content" autocomplete="off"></textarea>
                 <p>Laiser un espase entre chaque tag</p>
-                <input type="text" name="tag" placeholder="Tag" id="tag" maxlength="50">
+                <input type="text" name="tag" placeholder="Tag" id="tag" maxlength="50" autocomplete="off">
                 <button type="submit"> Crée nouveau post</button>
             </form>
             

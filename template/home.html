@@ -35,6 +35,11 @@
                     <button type="submit" class="bounton-nav"> post </button>
             </form>
             </div>
+            <div class="deco" id="box_boutonNav">
+                <form action="/delete-cookie">
+                    <button type="submit" class="bounton-nav"> déconnexion </button>
+                </form>
+            </div>
         </div>
     </div>
     
@@ -59,7 +64,7 @@
             <button id="demo" onclick="openForm('create_coment_{{$index}}' )">commanter </button>
             <div id="create_coment_{{$index}}" class="add_comment">
                 <form method="POST" id="add_comment">
-                    <textarea name="content" id="content"></textarea> 
+                    <textarea name="content" id="content" autocomplete="off"></textarea> 
                     <button type="submit"> comment </button>
                     <input name="id" value="{{$index}}"  style="display: none;">
                 </form> 
@@ -72,8 +77,8 @@
                 <br>
                 </div>
            {{ end }}
+        </div>
         {{ end }}
-    </div>
     <script>
         function fermer(id) {
             document.getElementById(id).style.display = "none";
