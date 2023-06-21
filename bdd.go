@@ -22,12 +22,11 @@ func OpenBDD() *sql.DB {
 	return database
 }
 
-var likes []like
 
 func InitBDD() {
 	database := OpenBDD()
 	defer database.Close()
-	tmp := `
+	bdd := `
 	CREATE TABLE IF NOT EXISTS "user" (
 		"id_user"				INTEGER NOT NULL UNIQUE,
 		"uuid" 					VARCHAR(36) NOT NULL UNIQUE,
@@ -78,8 +77,7 @@ func InitBDD() {
 		PRIMARY KEY("id_categorie", "id_post")
 	);
 	`
-
-	_, bdderr := database.Exec(tmp)
+	_, bdderr := database.Exec(bdd) 
 	if bdderr != nil {
 		log.Fatal(bdderr.Error())
 	}
@@ -179,7 +177,6 @@ func GetAlPosts() []Post {
 		post.Title_post = title_post
 		post.Content_post = content_post
 		post.Pseudo_user = pseudo_user
-		// fmt.Println(post)
 		posts = append(posts, post)
 	}
 	return posts
@@ -243,44 +240,29 @@ func GetAlComments()[]Comment {
 func GetPosts()[]Post{
 	posts := GetAlPosts()
 	comments := GetAlComments()
+	likes := GetLikeAndDislikeNb()
 	for index_post, _  := range posts{
 		for index_comment, _ := range comments {
 			if comments[index_comment].Id_post == index_post+1{
 				posts[index_post].Comments = append(posts[index_post].Comments, comments[index_comment])
+
+			}
+		}
+		for index_like, _ := range likes{
+			if likes[index_like].Is_like == true && index_post == likes[index_like].Id_post{
+				posts[index_post].Nb_like=likes[index_like].Nb_like
+			}
+			if likes[index_like].Is_like == false && index_post == likes[index_like].Id_post{
+				posts[index_post].Nb_dislike=likes[index_like].Nb_like
 			}
 		}
 	}
 	return posts
 }
-func GetAlLikes() {
-	var like like
-	var id int
-	var id_post int
-	var effect bool
-	database := OpenBDD()
-	rows, err := database.Query("SELECT * FROM like")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer database.Close()
-	defer rows.Close()
-	for rows.Next() {
-		err = rows.Scan(&id, &id_post, &effect)
-		if err != nil {
-			log.Fatal(err)
-		}
-		like.id = id
-		like.id_post = id_post
-		like.effet = effect
-		likes = append(likes, like)
-	}
-	defer database.Close()
-}
 
 func AddUser(id string, age int, firstname string, lastname string, email string, password string, pseudo string) error {
 	database := OpenBDD()
 	password = HashPassword(password)
-	//fmt.Println(password)
 	if age < 13 {
 		return fmt.Errorf("age<13")
 	}
@@ -312,7 +294,46 @@ func AddPost(id_user int, title_post string, content_post string, tag string) er
 	AddTag(id_user,tag)
 	return nil
 }
-
+func GetLikeAndDislikeNb() []Like {
+	database := OpenBDD()
+	var likes []Like
+	var like Like
+	var nb_like int
+	var id_post int
+	var is_like bool = true
+	rows, err := database.Query(`SELECT COUNT(*) as nb_like, id_post FROM like WHERE effect = "1" GROUP BY id_post ORDER BY id_post;`) // get nb of like by post and add it to the liste likes
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&nb_like, &id_post)
+		if err != nil {
+			log.Fatal(err)
+		}
+		like.Nb_like=nb_like
+		like.Id_post=id_post
+		like.Is_like=is_like
+		likes = append(likes, like)
+	}	
+	is_like = false
+	rows, err = database.Query(`SELECT COUNT(*) as nb_like, id_post FROM like WHERE effect = "-1" GROUP BY id_post ORDER BY id_post;`) // get number of dislike by post and add it to the liste likes
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&nb_like, &id_post)
+		if err != nil {
+			log.Fatal(err)
+		}
+		like.Nb_like=nb_like
+		like.Id_post=id_post
+		like.Is_like=is_like
+		likes = append(likes, like)
+	}	
+	return likes
+}
 func GetLastPost(id_user int) int{
 	database := OpenBDD()
 	id_post := 0
@@ -408,7 +429,7 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 	database := OpenBDD()
 	var need_update bool = false
 	var effect_like string
-	rows, err := database.Query(`SELECT effect FROM like WHERE id_user = `+strconv.Itoa(id_user)+` AND id_post = `+strconv.Itoa(id_post+1)+` ;`)
+	rows, err := database.Query(`SELECT effect FROM like WHERE id_user = `+strconv.Itoa(id_user)+` AND id_post = `+strconv.Itoa(id_post+1)+` ;`) //get like if existe, if not créate new like and if value need to be change it change the value 
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -416,7 +437,6 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&effect_like)
-		fmt.Println(effect_like)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -435,10 +455,8 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 			defer database.Close()
 			log.Fatal(err)
 		}
-		fmt.Println(effect_tmp)
 		effect_tmp *= -1
 		effect = strconv.Itoa(effect_tmp)
-		fmt.Println(effect)
 		database := OpenBDD()
 		update, BDDerr := database.Prepare(`UPDATE like SET effect = ? WHERE id_user = ? AND id_post = ?;`)
 		if BDDerr != nil {
@@ -453,7 +471,6 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 		defer database.Close()
 		return nil
 	}
-	fmt.Println("et la je passe aussi")
 	add, BDDerr := database.Prepare(`INSERT INTO like(id_post, id_user, effect) VALUES(?,?,?)`)
 	if BDDerr != nil {
 		defer database.Close()
@@ -495,7 +512,6 @@ func HashPassword(password string) string {
 
 func CheckPasswordHash(password string, hash string) bool {
 	hashingErr := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	//fmt.Println(hashingErr)
 	return hashingErr == nil
 }
 
@@ -518,7 +534,6 @@ func UpdateUser(user User) error {
 
 func SearchCategorie(categorie string) []Post {
 	id := GetCategorie(categorie)
-	fmt.Println(id)
 	if id !=0{
 		var post Post
 		var posts []Post
@@ -545,7 +560,6 @@ func SearchCategorie(categorie string) []Post {
 			post.Pseudo_user = pseudo_user
 			posts = append(posts, post)
 		}
-		fmt.Println(posts)
 		return posts
 	}
 	return nil

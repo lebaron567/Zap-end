@@ -55,7 +55,9 @@
             <hr>
             <p>{{.Content_post}}</p>
             <form method="POST">
+                <p>{{.Nb_like}}</p>
                 <button type="submit" name="effect" value="{{$index}},1">like</button>
+                <p>{{.Nb_dislike}}</p>
                 <button type="submit" name="effect" value="{{$index}},-1">dislike</button>
             </form>
             

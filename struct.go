@@ -7,16 +7,18 @@ type Post struct {
 	Title_post   string
 	Content_post string
 	Comments 	 []Comment
+	Nb_like		 int
+	Nb_dislike	 int
 }
 type Comment struct {
 	Id_post 		int
 	Writer_comment 	string
 	Content_comment string
 }
-type like struct {
-	id      int
-	id_post int
-	effet   bool
+type Like struct {
+	Id_post 	int
+	Nb_like   	int
+	Is_like 	bool
 }
 type User struct {
 	Id                   int
