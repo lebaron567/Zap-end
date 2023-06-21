@@ -85,8 +85,21 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	posts := back.GetPosts()
 	cookie := chekCookis(w,r)
 	if r.Method == "POST"{
-		input := r.FormValue("effect")
-		tmp := strings.Split(input, ",")
+		like := r.FormValue("effect")
+		if like == ""{
+			content_comment := r.FormValue("content")
+			input_id := r.FormValue("id")
+			id_post, err := strconv.Atoi(input_id)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			id_user := back.GetIDUserFromUUID(cookie)
+			BDDerr := back.AddComment(id_post+1, id_user, content_comment)
+			if BDDerr != nil{
+				http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
+			}
+		}
+		tmp := strings.Split(like, ",")
 		if tmp[0] != ""{
 			fmt.Println(tmp[0])
 		post_id, err := strconv.Atoi(tmp[0])

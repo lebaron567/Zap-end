@@ -65,8 +65,8 @@
             <div id="create_coment_{{$index}}" class="add_comment">
                 <form method="POST" id="add_comment">
                     <textarea name="content" id="content" autocomplete="off"></textarea> 
-                    <button type="submit"> comment </button>
-                    <input name="id" value="{{$index}}"  style="display: none;">
+                    <button type="submit"autocomplete="off"> comment </button>
+                    <input name="id" value="{{$index}}"  style="display: none;" autocomplete="off">
                 </form> 
                 <button id="demo" onclick="fermer('create_coment_{{$index}}')">ferme </button>
             </div>
@@ -78,7 +78,8 @@
                 </div>
            {{ end }}
         </div>
-        {{ end }}
+    {{ end }}
+    </div>
     <script>
         function fermer(id) {
             document.getElementById(id).style.display = "none";

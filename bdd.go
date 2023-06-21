@@ -347,7 +347,21 @@ func GetCategorie(categorie string) int{
 	return id_categorie
 }
 
-
+func AddComment(id_post int, id_user int, content_comment string)error{
+	database := OpenBDD()
+	statement, BDDerr := database.Prepare(`INSERT INTO comment(id_post, id_user, content_comment) VALUES(?,?,?)`)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	_, BDDerr = statement.Exec(id_post, id_user, content_comment)
+	if BDDerr != nil {
+		defer database.Close()
+		return BDDerr
+	}
+	defer database.Close()
+	return nil
+}
 
 func AddTag(id_user int, tags string) error {
 	listTag := strings.Split(tags, " ")
