@@ -243,16 +243,16 @@ func GetPosts()[]Post{
 	likes := GetLikeAndDislikeNb()
 	for index_post, _  := range posts{
 		for index_comment, _ := range comments {
-			if comments[index_comment].Id_post == index_post+1{
+			if comments[index_comment].Id_post == index_post{
 				posts[index_post].Comments = append(posts[index_post].Comments, comments[index_comment])
 
 			}
 		}
 		for index_like, _ := range likes{
-			if likes[index_like].Is_like == true && index_post == likes[index_like].Id_post{
+			if likes[index_like].Is_like == true && index_post+1 == likes[index_like].Id_post{
 				posts[index_post].Nb_like=likes[index_like].Nb_like
 			}
-			if likes[index_like].Is_like == false && index_post == likes[index_like].Id_post{
+			if likes[index_like].Is_like == false && index_post+1 == likes[index_like].Id_post{
 				posts[index_post].Nb_dislike=likes[index_like].Nb_like
 			}
 		}
@@ -463,14 +463,12 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 			defer database.Close()
 			return BDDerr
 		}
-		fmt.Println(id_post)
 		_, BDDerr = update.Exec(effect, id_user, id_post)
 		if BDDerr != nil {
 			defer database.Close()
 			return BDDerr
 		}
 		defer database.Close()
-		fmt.Println("et la je passe aussi")
 		return nil
 	}
 	add, BDDerr := database.Prepare(`INSERT INTO like(id_post, id_user, effect) VALUES(?,?,?)`)

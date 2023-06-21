@@ -24,8 +24,6 @@ var invite = template.Must(template.ParseFiles("template/invite.html"))
 var dataCategori string = ""
 
 func main() {
-	now := time.Now()
-	fmt.Println("Current datetime:", now)
 	back.InitBDD()
 	http.HandleFunc("/post", Post)
 	http.HandleFunc("/home", Home)
@@ -35,13 +33,11 @@ func main() {
 	http.HandleFunc("/connexion", Connexion)
 	http.HandleFunc("/inviter", Inviter)
 	http.HandleFunc("/delete-cookie", deleteCookieHandler)
-	id := uuid.New()
-	fmt.Println("Generated UUID:")
-	fmt.Println(id.String())
+
 
 	fs := http.FileServer(http.Dir("assets/"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	fmt.Println("Serveur start at : http://localhost:8080/inviter")
+	fmt.Println("Serveur start at : http://localhost:8080/home")
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -57,7 +53,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Print(err)
 		}
-		fmt.Println(back.AddPost(id_user, title, content, tag))
+		back.AddPost(id_user, title, content, tag)
 	}
 	err := post.Execute(w, nil)
 	if err != nil {
@@ -72,7 +68,6 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		like := r.FormValue("effect")
 		if like == ""{
 			content_comment := r.FormValue("content")
-			fmt.Println(r.FormValue("content"))
 			input_id := r.FormValue("id")
 			id_post, err := strconv.Atoi(input_id)
 			if err != nil {
@@ -184,7 +179,6 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 	cookie := chekCookis(w,r)
 	input := ""
 	if r.Method == "GET"{
-		fmt.Println("dddd")
 		input = r.FormValue("search")
 		if dataCategori != ""{
 			input = dataCategori
@@ -202,7 +196,6 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 		like := r.FormValue("effect")
 		if like == ""{
 			content_comment := r.FormValue("content")
-			fmt.Println(r.FormValue("content"))
 			input_id := r.FormValue("id")
 			id_post, err := strconv.Atoi(input_id)
 			if err != nil {
