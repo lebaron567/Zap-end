@@ -49,17 +49,57 @@
         </form>
         {{ range $index, $post := . }}
         <div class="post"> 
-            <h1>{{.Pseudo_user}}</h1>
-            <p>{{.Title_post}}</p>
+            <p class="display_pseudo">{{.Pseudo_user}}</p>
+            <p class="display_titre">{{.Title_post}}</p>
+            <hr>
             <p>{{.Content_post}}</p>
-
             <form method="POST">
-                <button type="submit" name="effect" value="{{$index}},1">like</button>
-                <button type="submit" name="effect" value="{{$index}},-1">dislike</button>
+                <button type="submit" name="effect" value="{{.Id_post}},1">like</button>
+                <button type="submit" name="effect" value="{{.Id_post}},-1">dislike</button>
             </form>
-           
-        </div>
+            
+            
+            <button id="demo" onclick="openForm('create_coment_{{$index}}' )">commanter </button>
+            <div id="create_coment_{{$index}}" class="add_comment">
+                <form method="POST" id="add_comment">
+                    <textarea name="content" id="content" autocomplete="off" required></textarea> 
+                    <button type="submit" autocomplete="off"> comment </button>
+                    <input name="id" value="{{$index}}"  style="display: none;" autocomplete="off">
+                </form> 
+                <button id="demo" onclick="fermer('create_coment_{{$index}}')">ferme </button>
+            </div>
+            <button id="demo" onclick="displayCemment()">aficher les commentaire </button>
+            <div class="commentsDiv" style="display: none;" id="commentsDiv">
+                {{ range $index_comment, $comment := .Comments }}
+                    <div class="comment">
+                    <p>{{$comment.Writer_comment}}</p>
+                    <p>{{$comment.Content_comment}}</p>
+                    <br>
+                    </div>
             {{ end }}
+            </div>
+        </div>
+        {{ end }}
+    </div>
+    <script>
+        function fermer(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function openForm(id) {
+            document.getElementById(id).style.display = "block";
+        }
+    </script>
+    <script>
+        function displayCemment() {
+          var commentsDiv = document.getElementById('commentsDiv');
+          if (commentsDiv.style.display === 'none') {
+            commentsDiv.style.display = 'block';
+          } else {
+            commentsDiv.style.display = 'none';
+          }
+        }
+      </script>
     </div>
 </body>
 </html>

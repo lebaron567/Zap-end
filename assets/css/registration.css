@@ -2,8 +2,8 @@
     position: relative;
     width: 300px;
     top: 5%;
-    /* left: 50%; */
-    /* transform: translate(-50%, 5%); */
+    left: 50%; 
+    transform: translate(-50%, 5%); 
     background-color: rgb(144, 127, 15);
     padding: 25px;
     border-radius: 10px;

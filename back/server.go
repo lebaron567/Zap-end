@@ -21,23 +21,9 @@ var connexion = template.Must(template.ParseFiles("template/connexion.html"))
 var explorer = template.Must(template.ParseFiles("template/Explorer.html"))
 var profil = template.Must(template.ParseFiles("template/profil.html"))
 var invite = template.Must(template.ParseFiles("template/invite.html"))
-var ff = 0
+var dataCategori string = ""
 
-type DataUser struct {
-	Cookis string
-}
 
-type Data struct {
-	User,
-	Message string
-	NBLike int
-}
-
-type MyData struct {
-	User,
-	Message string
-	NBLike int
-}
 func main() {
 	// back.AddLikeAndDislike(1, 1, 1)
 	now := time.Now()
@@ -88,13 +74,14 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		like := r.FormValue("effect")
 		if like == ""{
 			content_comment := r.FormValue("content")
+			fmt.Println(r.FormValue("content"))
 			input_id := r.FormValue("id")
 			id_post, err := strconv.Atoi(input_id)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 			id_user := back.GetIDUserFromUUID(cookie)
-			BDDerr := back.AddComment(id_post+1, id_user, content_comment)
+			BDDerr := back.AddComment(id_post, id_user, content_comment)
 			if BDDerr != nil{
 				http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
 			}
@@ -112,6 +99,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
 			}
 		}
+		http.Redirect(w, r, "/home", http.StatusFound)
 	}
 
 	err := home.Execute(w, posts)
@@ -151,7 +139,7 @@ func Connexion(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/home", http.StatusFound)
 		}
 	}
-	err := connexion.Execute(w, ff)
+	err := connexion.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -196,11 +184,16 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 
 }
 func Explorer(w http.ResponseWriter, r *http.Request) {
-	posts := back.GetAlPosts()
+	posts := back.GetPosts()
 	cookie := chekCookis(w,r)
+	input := ""
 	if r.Method == "GET"{
 		fmt.Println("dddd")
-		input := r.FormValue("search")
+		input = r.FormValue("search")
+		if dataCategori != ""{
+			input = dataCategori
+			dataCategori =""
+		}
 		postsTrier := back.SearchCategorie(strings.ToLower(input))
 		if postsTrier!=nil{
 			posts = postsTrier
@@ -210,18 +203,36 @@ func Explorer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if r.Method == "POST" {
-		input := r.FormValue("effect")
-		tmp := strings.Split(input, ",")
-		post_id , err := strconv.Atoi(tmp[0])
-		if err != nil {
-			log.Fatal(err)
+		like := r.FormValue("effect")
+		if like == ""{
+			content_comment := r.FormValue("content")
+			fmt.Println(r.FormValue("content"))
+			input_id := r.FormValue("id")
+			id_post, err := strconv.Atoi(input_id)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			id_user := back.GetIDUserFromUUID(cookie)
+			BDDerr := back.AddComment(id_post, id_user, content_comment)
+			if BDDerr != nil{
+				http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
+			}
 		}
-		user_id := back.GetIDUserFromUUID(cookie)
-		BDDerr := back.AddLikeAndDislike(post_id, user_id, tmp[1])
-		if BDDerr != nil {
-			http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
+		tmp := strings.Split(like, ",")
+		if tmp[0] != ""{
+			fmt.Println(tmp[0])
+		post_id, err := strconv.Atoi(tmp[0])
+			if err != nil {
+				log.Fatal(err)
+			}
+			user_id := back.GetIDUserFromUUID(cookie)
+			BDDerr := back.AddLikeAndDislike(post_id, user_id, tmp[1])
+			if BDDerr != nil {
+				http.Error(w, BDDerr.Error(), http.StatusInternalServerError)
+			}
 		}
-
+		dataCategori = input
+		http.Redirect(w, r, "/explorer", http.StatusFound)
 	}
 	err := explorer.Execute(w, posts)
 	if err != nil {

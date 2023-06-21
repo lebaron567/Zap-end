@@ -408,7 +408,7 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 	database := OpenBDD()
 	var need_update bool = false
 	var effect_like string
-	rows, err := database.Query(`SELECT effect FROM like WHERE id_user = `+strconv.Itoa(id_user)+` AND id_post = `+strconv.Itoa(id_post+1)+` ;`)
+	rows, err := database.Query(`SELECT effect FROM like WHERE id_user = `+strconv.Itoa(id_user)+` AND id_post = `+strconv.Itoa(id_post)+` ;`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -440,26 +440,27 @@ func AddLikeAndDislike(id_post int, id_user int, effect string) error {
 		effect = strconv.Itoa(effect_tmp)
 		fmt.Println(effect)
 		database := OpenBDD()
-		update, BDDerr := database.Prepare(`UPDATE like SET effect = ? WHERE id_user = ? AND id_post = ?;`)
+		update, BDDerr := database.Prepare(`UPDATE like SET effect =? WHERE id_user = ? AND id_post = ?;`)
 		if BDDerr != nil {
 			defer database.Close()
 			return BDDerr
 		}
+		fmt.Println(id_post)
 		_, BDDerr = update.Exec(effect, id_user, id_post)
 		if BDDerr != nil {
 			defer database.Close()
 			return BDDerr
 		}
 		defer database.Close()
+		fmt.Println("et la je passe aussi")
 		return nil
 	}
-	fmt.Println("et la je passe aussi")
 	add, BDDerr := database.Prepare(`INSERT INTO like(id_post, id_user, effect) VALUES(?,?,?)`)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
 	}
-	_, BDDerr = add.Exec(id_post+1, id_user, effect)
+	_, BDDerr = add.Exec(id_post, id_user, effect)
 	if BDDerr != nil {
 		defer database.Close()
 		return BDDerr
