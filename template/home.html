@@ -15,19 +15,13 @@
             <div class="home" id="box_boutonNav">
             <img src="/assets/img/acuille.png" class="imgHome">
                 <form action="/home">
-                    <button type="submit" class="bounton-nav"> Accuille </button>
+                    <button type="submit" class="bounton-nav"> Accueil </button>
                 </form>
             </div>
             <div class="explorer" id="box_boutonNav">
             <img src="/assets/img/explorer.png" class="imgExplorer">
                 <form action="/explorer">
                     <button type="submit" class="bounton-nav"> Explorer </button>
-                </form>
-            </div>
-            <div class="message_priver" id="box_boutonNav">
-                <img src="/assets/img/message.png" class="imgExplorer">
-                <form action="/message">
-                    <button type="submit" class="bounton-nav"> Message priver </button>
                 </form>
             </div>
             <div class="profil" id="box_boutonNav">
@@ -41,31 +35,74 @@
                     <button type="submit" class="bounton-nav"> post </button>
             </form>
             </div>
+            <div class="deco" id="box_boutonNav">
+                <form action="/delete-cookie">
+                    <button type="submit" class="bounton-nav"> déconnexion </button>
+                </form>
+            </div>
         </div>
     </div>
     
     <div class="box">
-        <div class="search-form">
+        <!-- <div class="search-form">
             <input type="text" placeholder="Recherche" class="search-input">
             <button type="submit" class="search-button">Rechercher</button>
-        </div>
-        {{ range . }}
+        </div> -->
+        {{ range $index, $post := . }}
         <div class="post"> 
-            <p>{{.Pseudo_user}}</p>
-            <p>{{.Title_post}}</p>
+            <p class="display_pseudo">{{.Pseudo_user}}</p>
+            <p class="display_titre">{{.Title_post}}</p>
             <hr>
             <p>{{.Content_post}}</p>
-        </div>
+            <form method="POST">
+                <p>{{.Nb_like}}</p>
+                <button type="submit" name="effect" value="{{.Id_post}},1">like</button>
+                <p>{{.Nb_dislike}}</p>
+                <button type="submit" name="effect" value="{{.Id_post}},-1">dislike</button>
+            </form>
+            
+            
+           
+            <button id="demo" onclick="openForm('create_coment_{{$index}}' )">commanter </button>
+            <div id="create_coment_{{$index}}" class="add_comment">
+                <form method="POST" id="add_comment">
+                    <textarea name="content" id="content" autocomplete="off" required></textarea> 
+                    <button type="submit" autocomplete="off"> comment </button>
+                    <input name="id" value="{{$index}}"  style="display: none;" autocomplete="off">
+                </form> 
+                <button id="demo" onclick="fermer('create_coment_{{$index}}')">ferme </button>
+            </div>
+            <button id="demo" onclick="displayCemment()">aficher les commentaire </button>
+            <div class="commentsDiv" style="display: none;" id="commentsDiv">
+                {{ range $index_comment, $comment := .Comments }}
+                    <div class="comment">
+                    <p>{{$comment.Writer_comment}}</p>
+                    <p>{{$comment.Content_comment}}</p>
+                    <br>
+                    </div>
             {{ end }}
-    </div>
-    <!-- <div class=" post">
-        <p>{{.User}}</p>
-        <hr>
-        <div class="message"> 
-         <h1>{{.Message}}</h1>
+            </div>
         </div>
-        <hr>
-        <p>like: {{.NBLike}}</p>   
-    </div> -->
+    {{ end }}
+    </div>
+    <script>
+        function fermer(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function openForm(id) {
+            document.getElementById(id).style.display = "block";
+        }
+    </script>
+    <script>
+        function displayCemment() {
+          var commentsDiv = document.getElementById('commentsDiv');
+          if (commentsDiv.style.display === 'none') {
+            commentsDiv.style.display = 'block';
+          } else {
+            commentsDiv.style.display = 'none';
+          }
+        }
+      </script>
 </body>
 </html>

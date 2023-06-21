@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/style.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='../assets/css/profil.css'>
     <title>Zap'end</title>
     <link rel="icon" type="image/png" href="/assets/img/logo.png"/>
 </head>
@@ -14,19 +15,13 @@
             <div class="home" id="box_boutonNav">
             <img src="/assets/img/acuille.png" class="imgHome">
                 <form action="/home">
-                    <button type="submit" class="bounton-nav"> Accuille </button>
+                    <button type="submit" class="bounton-nav"> Accueil </button>
                 </form>
             </div>
             <div class="explorer" id="box_boutonNav">
             <img src="/assets/img/explorer.png" class="imgExplorer">
                 <form action="/explorer">
                     <button type="submit" class="bounton-nav"> Explorer </button>
-                </form>
-            </div>
-            <div class="message_priver" id="box_boutonNav">
-                <img src="/assets/img/message.png" class="imgExplorer">
-                <form action="/message">
-                    <button type="submit" class="bounton-nav"> Message priver </button>
                 </form>
             </div>
             <div class="profil" id="box_boutonNav">
@@ -40,8 +35,50 @@
                     <button type="submit" class="bounton-nav"> post </button>
             </form>
             </div>
+            <div class="deco" id="box_boutonNav">
+                <form action="/delete-cookie">
+                    <button type="submit" class="bounton-nav"> déconnexion </button>
+                </form>
+            </div>
         </div>
     </div>
-    <div class="box"></div>
+    <div class="box">
+        <button id="demo" onclick="myFunction()">édite profil</button>
+        <script>
+            function fermer() {
+            document.getElementById("test").style.display = "none";
+            }
+
+            function myFunction() {
+            document.getElementById("test").style.display = "block";
+            }
+        </script>
+        <div class="info" id="test">
+            <form method="POST">
+                <p>pseudo: 
+                    <input type="text" value="{{.User.Pseudo_user}}" name="pseudo" required>
+                </p>
+                <p>prénom:
+                    <input type="text" value="{{.User.Firstname_user}}" name="Prenon" required> </p>
+                <p>nom :
+                    <input type="text" value="{{.User.Lastname_user }}"name="nom" required> </p>
+                <p>age: 
+                    <input type="text" value="{{.User.Age}}" name="age" required>
+                </p>
+                <button id="demo" onclick="fermer()">fermer</button>
+                <button type="submit"> modifer </button>
+            </form>
+        </div>
+        <div class="posts">
+            {{ range $index, $post := .Post }}
+            <div class="post"> 
+                <p>{{.Pseudo_user}}</p>
+                <p>{{.Title_post}}</p>
+                <hr>
+                <p>{{.Content_post}}</p>
+            </div>
+             {{ end }}
+        </div>
+    </div>
 </body>
 </html>

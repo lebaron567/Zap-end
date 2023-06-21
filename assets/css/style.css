@@ -1,9 +1,6 @@
 
 body{
     background-color: rgb(53, 53, 53);
-    display: flex;
-    justify-content: space-around;
-
 }
 .menu {
     background-color: #AAEDED;
@@ -81,11 +78,10 @@ p{
 }
 
 .post {
-    background-color: #eff5f5;
+    background-color: #ffffff;
     border: solid;
     text-align: center;
     box-sizing: content-box;
-    width: 400px;
     margin-top: 50px;
     display: flex;
     align-items: flex-start;
@@ -107,8 +103,7 @@ p{
     border-radius: 20px;
 
     display: flex;
-    width: 550px;
-    
+    width: 550px; 
 }
 body .create-post form textarea{
     border-radius: 10px;
@@ -120,7 +115,25 @@ body .create-post form textarea{
     padding: 10px;
 }
 .box{
-    position: absolute;
-    left: 337px;
+    position: relative;
+    margin-left: 337px;
+    margin-bottom: 50px;
+    width: 80vh ;
 }
 
+.display_pseudo{
+    margin-bottom: 5px;
+}
+
+.add_comment{
+    display: none;
+}
+
+.display_pseudo{
+    font-weight: bold;
+    font-size: xx-large;
+}
+.display_titre{
+    font-weight: bold;
+    font-size: large;
+}
