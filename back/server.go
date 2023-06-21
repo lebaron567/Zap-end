@@ -23,9 +23,7 @@ var profil = template.Must(template.ParseFiles("template/profil.html"))
 var invite = template.Must(template.ParseFiles("template/invite.html"))
 var dataCategori string = ""
 
-
 func main() {
-	// back.AddLikeAndDislike(1, 1, 1)
 	now := time.Now()
 	fmt.Println("Current datetime:", now)
 	back.InitBDD()
@@ -88,8 +86,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		}
 		tmp := strings.Split(like, ",")
 		if tmp[0] != ""{
-			fmt.Println(tmp[0])
-		post_id, err := strconv.Atoi(tmp[0])
+			post_id, err := strconv.Atoi(tmp[0])
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -158,7 +155,6 @@ func Registration(w http.ResponseWriter, r *http.Request) {
 			log.Fatal("strconv issue")
 		}
 		id := uuid.New()
-		//fmt.Println(prenom, nom, email, pseudo, password, age)
 		bdderr := back.AddUser(id.String(), age, prenom, nom, email, password, pseudo)
 		if bdderr != nil {
 			fmt.Println(bdderr)
